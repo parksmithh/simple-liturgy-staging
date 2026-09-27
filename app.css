@@ -966,9 +966,11 @@ dialog button { width: 100%; border: 1px solid var(--dialog-border); border-radi
 
 @media (orientation: portrait) and (max-width: 767px),
   (orientation: portrait) and (hover: none) and (pointer: coarse) {
+  /* Match the menu's original high inset — its paper chip stays readable in the
+     iOS top blur band, so keep the SUN/date header on that same top edge. */
   .reader {
-    --reader-top: max(24px, calc(env(safe-area-inset-top) + 8px));
-    --reader-right: max(18px, env(safe-area-inset-right));
+    --reader-top: max(12px, calc(env(safe-area-inset-top) + 6px));
+    --reader-right: max(12px, env(safe-area-inset-right));
   }
   .header-summary { line-height: 1.25; }
   .date-line { font-size: inherit; }
@@ -977,13 +979,17 @@ dialog button { width: 100%; border: 1px solid var(--dialog-border); border-radi
   .screen-copy {
     padding:
       var(--reader-top)
-      var(--reader-right)
+      max(18px, env(safe-area-inset-right))
       max(20px, calc(env(safe-area-inset-bottom) + 8px))
       max(18px, env(safe-area-inset-left));
   }
+  .screen-header-copy {
+    /* Opaque paper behind the weekday/date so it reads like the menu chip. */
+    background: var(--paper);
+  }
   .reader-menu {
     top: var(--reader-top);
-    right: max(8px, calc(var(--reader-right) - 4px));
+    right: var(--reader-right);
   }
 }
 
