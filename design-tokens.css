@@ -30,6 +30,7 @@
   --type-reader-focus-citation: clamp(30px, 8vw, 52px);
   --type-reader-prayer: clamp(20px, 4.8vw, 34px);
   --type-reader-noonday: clamp(20px, 4.8vw, 30px);
+  --type-reader-scripture: clamp(16px, 3.84vw, 24px);
   --type-reader-aside: .88em;
   --type-reader-symbol: .82em;
   --type-reader-warning: .62em;

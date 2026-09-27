@@ -404,6 +404,30 @@ h1 { margin: 0; font: var(--font-weight-semibold) var(--type-app-title) var(--fo
 .timed-office-section-cite { margin-top: 4px; font-size: var(--type-reader-subtitle); font-weight: var(--font-weight-reader-content); line-height: 1.1; }
 .timed-office-scripture-heading { margin-top: 4px; color: var(--ink); font-size: var(--type-reader-focus-citation); font-weight: var(--font-weight-reader-content); line-height: 1.05; }
 .timed-office-scripture-footnote { margin-top: .65em; color: var(--eyebrow); font-size: var(--type-reader-footnote); font-weight: var(--font-weight-regular); line-height: 1.1; }
+.scripture-unavailable-note { margin-top: 8px; color: var(--eyebrow); font-size: var(--type-reader-citation); font-weight: var(--font-weight-regular); line-height: 1.35; font-style: italic; }
+.scripture-lesson-text {
+  overflow: hidden;
+  font-size: var(--type-reader-scripture) !important;
+  line-height: 1.18;
+}
+.scripture-lesson-text .noonday-psalm-verses {
+  display: flex;
+  flex-direction: column;
+  gap: 0.72em;
+}
+.scripture-lesson-text .noonday-psalm-verse {
+  display: flex;
+  align-items: flex-start;
+  column-gap: 0.22em;
+  grid-template-columns: none;
+}
+.scripture-lesson-text .noonday-psalm-number {
+  flex: 0 0 auto;
+}
+.scripture-lesson-text .noonday-call-response {
+  flex: 1 1 auto;
+  min-width: 0;
+}
 .timed-office-gloria-text { font-weight: var(--font-weight-regular); }
 .timed-office-leader-cue { font-weight: var(--font-weight-regular); }
 .timed-office-closing-text { font-weight: var(--font-weight-regular); }
@@ -821,7 +845,10 @@ dialog button { width: 100%; border: 1px solid var(--dialog-border); border-radi
 }
 
 @media (orientation: landscape) and (max-height: 700px) {
-  :root { --type-reader-noonday: clamp(24px, 6.7vh, 27px); }
+  :root {
+    --type-reader-noonday: clamp(24px, 6.7vh, 27px);
+    --type-reader-scripture: clamp(19px, 5.36vh, 22px);
+  }
   html:not(.settings-open), html:not(.settings-open) body { width: 100%; height: 100%; overflow: hidden; background: var(--paper); }
   .reader { display: block; padding: 0; gap: 0; background: var(--paper); }
   .reader-menu {

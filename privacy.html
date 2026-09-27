@@ -8,9 +8,9 @@
   <meta name="description" content="How Simple Liturgy uses privacy-focused analytics and stores preferences on your device.">
   <link rel="canonical" href="https://simpleliturgy.com/privacy.html">
   <title>Privacy | Simple Liturgy</title>
-  <link rel="icon" href="./icon.svg?v=staging-01554e398e418a6547ef66d467928ccacc093c0a" type="image/svg+xml">
-  <link rel="stylesheet" href="./design-tokens.css?v=staging-01554e398e418a6547ef66d467928ccacc093c0a">
-  <link rel="stylesheet" href="./app.css?v=staging-01554e398e418a6547ef66d467928ccacc093c0a">
+  <link rel="icon" href="./icon.svg?v=staging-6810a8e5b1c9761f2ebd4c7130de12b9baa693ce" type="image/svg+xml">
+  <link rel="stylesheet" href="./design-tokens.css?v=staging-6810a8e5b1c9761f2ebd4c7130de12b9baa693ce">
+  <link rel="stylesheet" href="./app.css?v=staging-6810a8e5b1c9761f2ebd4c7130de12b9baa693ce">
 </head>
 <body>
   <main class="app-shell">
@@ -45,7 +45,7 @@
       <section class="settings-card privacy-card" aria-labelledby="device-storage-title">
         <p class="eyebrow">On your device</p>
         <h2 id="device-storage-title">Preferences and offline files</h2>
-        <p>Your analytics, appearance, feast-day link, Psalm display, and Noonday Prayer choices are stored only on your device. If you install or use the reader offline, your browser also caches the app, prayers, and lectionary data.</p>
+        <p>Your analytics, appearance, feast-day link, Scripture text, Psalm display, and Noonday Prayer choices are stored only on your device. If you install or use the reader offline, your browser also caches the app, prayers, lectionary data, and public-domain Scripture packs (WEB and KJV).</p>
         <p>You can remove this information by clearing Simple Liturgy's site data in your browser or uninstalling the saved web app.</p>
       </section>
 
@@ -70,8 +70,8 @@
   </main>
 
   <script type="module">
-    import { initializeAnalytics } from "./analytics.js?v=staging-01554e398e418a6547ef66d467928ccacc093c0a";
-    import { initializeTheme } from "./theme.js?v=staging-01554e398e418a6547ef66d467928ccacc093c0a";
+    import { initializeAnalytics } from "./analytics.js?v=staging-6810a8e5b1c9761f2ebd4c7130de12b9baa693ce";
+    import { initializeTheme } from "./theme.js?v=staging-6810a8e5b1c9761f2ebd4c7130de12b9baa693ce";
 
     initializeAnalytics({ document, storage: window.localStorage, trackerWindow: window });
     initializeTheme({

@@ -27,6 +27,12 @@ The default daily office the reader composes as a short sequence of opening pray
 ### Traditional Prayer
 The longer Rite II Morning or Evening office assembled from the full Daily Office corpus. It is a different surface from Simple Prayer; a Simple Prayer promote is not proven by opening Traditional Prayer.
 
+### Scripture preference
+Device setting Off / Simple (WEB) / Traditional (KJV) that chooses whether appointed Morning/Evening lesson focus shows Bible body text, and which public-domain translation. Independent of prayer format. Off keeps citations and withholds body text.
+
+### Scripture packs
+Compact offline WEB and KJV verse corpora installed with the PWA, built from eBible editions, used to resolve appointed lesson citations.
+
 ## Flagged ambiguities
 
 - "Look at it" had been used for the staging look, a green Actions run, an installed PWA, and the public website — these are different checks. The staging look is https://staging.simpleliturgy.com when that host is serving, with https://parksmithh.github.io/simple-liturgy-staging/ acceptable when the custom domain is not. The live-site check is only https://simpleliturgy.com, after a production tag.

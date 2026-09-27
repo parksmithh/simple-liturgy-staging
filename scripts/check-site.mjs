@@ -52,6 +52,8 @@ const REQUIRED_HTML_IDS = [
   "center-control",
   "next-control",
   "timed-office-onboarding",
+  "scripture-settings",
+  "scripture-settings-title",
 ];
 
 const SMOKE_PATHS = [
@@ -60,6 +62,7 @@ const SMOKE_PATHS = [
   "/privacy.html",
   "/terms.html",
   "/llms.txt",
+  "/NOTICE",
   "/manifest.webmanifest",
   "/service-worker.js",
   "/version.js",
@@ -76,6 +79,12 @@ const SMOKE_PATHS = [
   "/data/collects/collects.json",
   "/data/daily-office/rite-two.json",
   "/data/daily-office/psalter.json",
+  "/data/scripture/engwebp.json",
+  "/data/scripture/eng-kjv.json",
+  "/scripture-pack-loader.js",
+  "/scripture-preference.js",
+  "/scripture-reading.js",
+  "/scripture-resolve.js",
   "/dor-engine/daily-office-content.index.json",
   "/dor-engine/daily-office-content.active.jsonl",
   "/dor-engine/office-appointments.json",
@@ -192,6 +201,8 @@ function extractShellPaths(workerSource) {
   paths.add("./firmware/circuitpython/readings.active.jsonl");
   paths.add("./firmware/circuitpython/readings.active.idx");
   paths.add("./data/collects/collects.json");
+  paths.add("./data/scripture/engwebp.json");
+  paths.add("./data/scripture/eng-kjv.json");
   paths.add("./dor-engine/daily-office-content.index.json");
   paths.add("./dor-engine/daily-office-content.active.jsonl");
   return [...paths];
@@ -239,6 +250,7 @@ const {
   LORDS_PRAYER_HEADING,
   LORDS_PRAYER_TEXT,
   model,
+  numberedLiturgicalTextHtml,
   parseBundle,
   parseCollects,
   prayerLineationHtml,
@@ -253,6 +265,16 @@ const { parseReadingIndex } = await import("../reading-pack-loader.js");
 const { ALL_ICON_ASSET_PATHS } = await import("../pixel-art.js");
 const { scheduledServiceAt, officePeriodAt } = await import("../office-schedule.js");
 const { buildPrayerCalendar } = await import("../prayer-calendar.js");
+const { resolveCitation, unavailableNote } = await import("../scripture-resolve.js");
+const {
+  applyScriptureToSimpleView,
+  applyScriptureToTimedOffice,
+  formatVerseMarker,
+  paginateScriptureVersesByFit,
+  VERSE_ELLIPSIS,
+  versesToPageText,
+} = await import("../scripture-reading.js");
+const { initializeScripturePreference, setScriptureMode } = await import("../scripture-preference.js");
 
 const indexHtml = await readText("index.html");
 const privacyHtml = await readText("privacy.html");
@@ -766,6 +788,174 @@ check("prayer reminder calendar can be generated", () => {
   assert(calendar.includes("Evening Prayer"), "evening event");
   assert(!calendar.includes("Noonday Prayer"), "disabled noonday should stay out");
   assert(!calendar.includes("Compline"), "disabled Compline should stay out");
+});
+
+check("scripture settings default Off and auto-fit", () => {
+  assert(indexHtml.includes('name="scripture-mode" value="off" checked'), "Off must be the default scripture mode");
+  assert(indexHtml.includes('name="scripture-mode" value="web"'), "WEB option must be present");
+  assert(indexHtml.includes('name="scripture-mode" value="kjv"'), "KJV option must be present");
+  assert(!indexHtml.includes('name="scripture-pagination"'), "fixed verse-count spike removed");
+  assert(indexHtml.includes("auto-fit"), "settings note mentions auto-fit");
+  const memory = new Map();
+  const storage = {
+    getItem: key => memory.get(key) ?? null,
+    setItem: (key, value) => memory.set(key, String(value)),
+  };
+  const controls = [
+    { value: "off", checked: false },
+    { value: "web", checked: false },
+    { value: "kjv", checked: false },
+  ];
+  assert(initializeScripturePreference({ controls, storage }) === "off", "preference defaults to Off");
+  assert(setScriptureMode({ controls, storage }, "web") === "web", "WEB persists");
+  assert(initializeScripturePreference({ controls, storage }) === "web", "WEB restores");
+});
+
+check("product copy no longer claims Scripture is absent", () => {
+  assert(!indexHtml.includes("meant to be paired with a physical Bible"), "FAQ must not claim Bible-only pairing");
+  assert(indexHtml.includes("World English Bible (WEB)") || indexHtml.includes("WEB"), "FAQ mentions WEB");
+  assert(indexHtml.includes("King James Version (KJV)") || indexHtml.includes("KJV"), "FAQ mentions KJV");
+});
+
+check("scripture verse markers encode split pages", () => {
+  assert(formatVerseMarker(7) === "7", "complete verse");
+  assert(formatVerseMarker(7, { starts: true, ends: false }) === `7${VERSE_ELLIPSIS}`, "starts only");
+  assert(formatVerseMarker(7, { starts: false, ends: true }) === `${VERSE_ELLIPSIS}7`, "ends only");
+  assert(formatVerseMarker(7, { starts: false, ends: false }) === `${VERSE_ELLIPSIS}7${VERSE_ELLIPSIS}`, "middle");
+  const html = numberedLiturgicalTextHtml(`${VERSE_ELLIPSIS}7${VERSE_ELLIPSIS} middle fragment`);
+  assert(html.includes(`${VERSE_ELLIPSIS}7${VERSE_ELLIPSIS}`), "HTML keeps middle marker");
+});
+
+await checkAsync("scripture packs resolve appointed lesson samples", async () => {
+  const web = JSON.parse(await readText("data/scripture/engwebp.json"));
+  const kjv = JSON.parse(await readText("data/scripture/eng-kjv.json"));
+  assert(web.schema === "scripture-pack-v1" && kjv.schema === "scripture-pack-v1", "pack schema");
+  assert(Object.keys(web.books).length === 66, `WEB protestant books: ${Object.keys(web.books).length}`);
+  assert(Object.keys(kjv.books).length >= 66, "KJV includes Protestant canon");
+  assert(kjv.books.WIS, "KJV includes Wisdom");
+  assert(!web.books.WIS, "WEB omits Wisdom");
+
+  const isaiah = "Isaiah 1:1-9";
+  const webIsaiah = resolveCitation(isaiah, web);
+  const kjvIsaiah = resolveCitation(isaiah, kjv);
+  assert(webIsaiah.ok && webIsaiah.verses.length === 9, "WEB Isaiah 1:1-9");
+  assert(kjvIsaiah.ok && kjvIsaiah.verses.length === 9, "KJV Isaiah 1:1-9");
+
+  // Tiny height forces mid-verse splits so markers appear.
+  let call = 0;
+  const pages = paginateScriptureVersesByFit(webIsaiah.verses, candidate => {
+    call += 1;
+    const words = candidate.split(/\s+/).length;
+    return words <= 12;
+  });
+  assert(pages.length > 1, "auto-fit yields multiple pages");
+  assert(pages.some(page => page.includes(VERSE_ELLIPSIS)), "split pages keep ellipsis markers");
+  assert(call > 0, "fit callback used");
+  assert(versesToPageText(webIsaiah.verses).includes("1 "), "full page text includes verse 1");
+
+  const wisdom = resolveCitation("Wisdom 1:1-5", web);
+  assert(!wisdom.ok, "WEB misses Wisdom");
+  const kjvWisdom = resolveCitation("Wisdom 1:1-5", kjv);
+  assert(kjvWisdom.ok && kjvWisdom.verses.length === 5, "KJV Wisdom resolves");
+
+  const hebrews = resolveCitation("Hebrews 11:32--12:2", web);
+  assert(hebrews.ok && hebrews.verses.length > 10, "cross-chapter Hebrews");
+
+  const ecclus = resolveCitation("Ecclus. 2:1-11", kjv);
+  assert(ecclus.ok, `Ecclus. alias: ${ecclus.reason || "ok"}`);
+
+  const llmsText = await readText("llms.txt");
+  assert(!llmsText.includes("does not reproduce Scripture"), "llms.txt must not deny Scripture text");
+  assert(llmsText.includes("WEB") && llmsText.includes("KJV"), "llms.txt mentions translations");
+  const notice = await readText("NOTICE");
+  assert(notice.includes("eBible") && notice.includes("engwebp"), "NOTICE attributes eBible packs");
+  assert(workerSource.includes("data/scripture/engwebp.json"), "SW installs WEB pack");
+  assert(workerSource.includes("data/scripture/eng-kjv.json"), "SW installs KJV pack");
+  assert(workerSource.includes("scripture-resolve.js"), "SW shells scripture modules");
+});
+
+await checkAsync("scripture preference remaps Simple and Traditional lesson focus", async () => {
+  const web = JSON.parse(await readText("data/scripture/engwebp.json"));
+  const kjv = JSON.parse(await readText("data/scripture/eng-kjv.json"));
+  const bundle = parseBundle(await readText("firmware/circuitpython/readings.active.jsonl"));
+  const collects = parseCollects(await readText("data/collects/collects.json"));
+  const today = localIsoDate();
+  const offView = model(bundle, { offset: 0, focus: "OT", focusPage: 0 }, today, collects);
+  const offHtml = screenHtml(offView);
+  assert(offHtml.includes("Old Testament"), "Off focus shows OT label");
+  assert(!offHtml.includes("scripture-lesson-text"), "Off has no scripture body");
+  assert(!offHtml.includes("scripture-unavailable-note"), "Off has no unavailable note");
+
+  const webView = applyScriptureToSimpleView(offView, {
+    scriptureMode: "web",
+    pack: web,
+  });
+  assert(webView.scripturePages?.OT?.verses?.length > 0, "WEB attaches OT verses");
+  assert(webView.scripturePages?.OT?.pages?.length === 1, "initial paint is one unfitted page");
+  const webHtml = screenHtml(webView);
+  assert(webHtml.includes("scripture-lesson-text") || webHtml.includes("scripture-unavailable-note"), "WEB focus shows body or note");
+
+  const riteTwo = JSON.parse(await readText("data/daily-office/rite-two.json"));
+  const psalter = JSON.parse(await readText("data/daily-office/psalter.json"));
+  const appointments = JSON.parse(await readText("dor-engine/office-appointments.json"));
+  const document = composeDailyOffice({
+    service: "morning",
+    date: today,
+    day: bundle.dates.get(today),
+    collect: resolvePrayer(collects, bundle.dates.get(today)),
+    riteTwo,
+    psalter,
+    appointments,
+  });
+  const morning = model(bundle, { offset: 0, focus: document.sections.find(s => /_LESSON_1$/.test(s.key))?.key, focusPage: 0 }, today, collects, {
+    service: "morning",
+    officeDocument: document,
+  });
+  const withKjv = applyScriptureToTimedOffice(morning.office, {
+    scriptureMode: "kjv",
+    pack: kjv,
+  });
+  const lessonKey = Object.keys(withKjv.sections).find(key => /_LESSON_1$/.test(key));
+  assert(lessonKey, "morning has lesson 1");
+  assert(withKjv.sections[lessonKey].scriptureVerses?.length >= 1, "KJV lesson has verses for fit");
+  assert(withKjv.sections[lessonKey].preservePages !== true, "available lessons are auto-fit, not preservePages");
+  const kjvFocus = screenHtml({
+    ...morning,
+    office: withKjv,
+    morning: withKjv,
+    focus: lessonKey,
+  });
+  assert(
+    kjvFocus.includes("scripture-lesson-text") || kjvFocus.includes("scripture-unavailable-note"),
+    "Traditional KJV lesson shows body",
+  );
+
+  const wisdomOffice = {
+    sections: {
+      MORNING_LESSON_1: { citation: "Wisdom 1:1-5", pages: ["Wisdom 1:1-5"], label: "First Lesson" },
+    },
+  };
+  const webMiss = applyScriptureToTimedOffice(wisdomOffice, {
+    scriptureMode: "web",
+    pack: web,
+  });
+  assert(webMiss.sections.MORNING_LESSON_1.scriptureUnavailable, "WEB Wisdom is unavailable");
+  assert(webMiss.sections.MORNING_LESSON_1.pages[0] === unavailableNote(), "R8 note text");
+  assert(webMiss.sections.MORNING_LESSON_1.preservePages === true, "unavailable note preserves pages");
+});
+
+await checkAsync("scripture lesson focus stays non-scrolling", async () => {
+  const css = await readText("app.css");
+  const engine = await readText("bookmark-engine.js");
+  assert(css.includes(".focus {") && /overflow:\s*hidden/.test(css), "focus overflow hidden");
+  assert(css.includes(".scripture-lesson-text") && css.includes("overflow: hidden"), "scripture body overflow hidden");
+  assert(css.includes(".scripture-unavailable-note"), "unavailable note styled");
+  assert(appJs.includes("paginateScriptureVersesByFit"), "app measures scripture with auto-fit");
+  assert(appJs.includes("measuredScriptureSimpleLayout"), "Simple lessons measure fit");
+  assert(
+    engine.includes("page > 0") && engine.includes("escapeHtml(citationText)}") && engine.includes("READING_LABELS[key]"),
+    "continuation pages use citation as the focus title",
+  );
 });
 
 await checkAsync("critical URLs return HTTP 200 from a Pages-like server", async () => {

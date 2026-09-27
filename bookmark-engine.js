@@ -1,8 +1,8 @@
-import { wikipediaUrlForFeast } from "./feast-wikipedia.js?v=staging-01554e398e418a6547ef66d467928ccacc093c0a";
+import { wikipediaUrlForFeast } from "./feast-wikipedia.js?v=staging-6810a8e5b1c9761f2ebd4c7130de12b9baa693ce";
 import {
   adaptLegacyTimedOffice,
   officeDocumentToViewSections,
-} from "./office-document.js?v=staging-01554e398e418a6547ef66d467928ccacc093c0a";
+} from "./office-document.js?v=staging-6810a8e5b1c9761f2ebd4c7130de12b9baa693ce";
 
 export function parseBundle(text) {
   const readings = new Map();
@@ -163,7 +163,7 @@ const RESPONSE_FRAGMENT_MARKER = "\u001e";
 
 function numberedVerseParts(value) {
   return String(value || "").match(
-    /^(\d+(?::\d+)?[a-z]?(?:(?:[-–—]|,)\d+(?::\d+)?[a-z]?)*)(?:\s+([\s\S]*))?$/i,
+    /^((?:\u2026|\.\.\.)?\d+(?::\d+)?[a-z]?(?:(?:[-–—]|,)\d+(?::\d+)?[a-z]*)*(?:\u2026|\.\.\.)?)(?:\s+([\s\S]*))?$/i,
   );
 }
 
@@ -440,7 +440,13 @@ export function controlModel(viewOrFocus) {
         || viewOrFocus.compline
       )?.sections?.[focus]
       : null;
-    const paginatedSection = focus === "PRAYER" ? prayer : timedOfficeSection;
+    const scriptureBuilt = typeof viewOrFocus === "object" ? viewOrFocus.scripturePages?.[focus] : null;
+    const paginatedSection = focus === "PRAYER"
+      ? prayer
+      : timedOfficeSection || (scriptureBuilt ? {
+        page: Math.min(viewOrFocus.focusPage || 0, Math.max(0, (scriptureBuilt.pages?.length || 1) - 1)),
+        pages: scriptureBuilt.pages || [""],
+      } : null);
     const focusOrder = typeof viewOrFocus === "object" && Array.isArray(viewOrFocus.focusOrder)
       ? viewOrFocus.focusOrder
       : DAILY_FOCUS_ORDER;
@@ -993,6 +999,7 @@ export function model(bundle, state, today, collects = null, options = {}) {
     feast: day.feast,
     occasionType: day.occasion_type || null,
     focus: state.focus,
+    focusPage: state.focusPage || 0,
     focusOrder: DAILY_FOCUS_ORDER,
     service: "daily",
     prayer,
@@ -1010,6 +1017,13 @@ export function model(bundle, state, today, collects = null, options = {}) {
 
 export function focusPageCounts(view, measuredPages = {}) {
   const pageCounts = { PRAYER: view.prayer?.pages.length || 1 };
+  for (const key of ["OT", "NT", "GS"]) {
+    if (measuredPages[key]?.length) pageCounts[key] = measuredPages[key].length;
+    else {
+      const built = view.scripturePages?.[key];
+      if (built?.pages?.length) pageCounts[key] = built.pages.length;
+    }
+  }
   const timedOffice = view[view.service] || view.office || view.noonday || view.compline;
   for (const [focus, section] of Object.entries(timedOffice?.sections || {})) {
     if (measuredPages[focus]?.length) pageCounts[focus] = measuredPages[focus].length;
@@ -1132,6 +1146,22 @@ function citationHtml(view, key, className) {
 
 function readingContentHtml(view, key, className, psalmPresentation) {
   if (key !== "PS" || !view.psalms || !psalmPresentation.byTime) {
+    const built = view.scripturePages?.[key];
+    if (built && view.focus === key) {
+      const page = Math.min(view.focusPage || 0, built.pages.length - 1);
+      const pageIndex = built.pages.length > 1 ? ` (${page + 1}/${built.pages.length})` : "";
+      const citationText = built.citation || view.values[key] || "";
+      const body = built.unavailable
+        ? `<span class="prayer-text scripture-unavailable-note">${escapeHtml(built.pages[page] || "")}</span>`
+        : `<span class="prayer-text noonday-text timed-office-numbered-verses scripture-lesson-text">${numberedLiturgicalTextHtml(built.pages[page] || "")}</span>`;
+      if (page > 0) {
+        return `<span class="label">${escapeHtml(citationText)}${pageIndex}</span>${body}`;
+      }
+      const citation = citationText
+        ? `<span class="focus-cite">${escapeHtml(citationText)}</span>`
+        : "";
+      return `<span class="label">${READING_LABELS[key]}${pageIndex}</span>${citation}${body}`;
+    }
     return `<span class="label">${READING_LABELS[key]}</span>${citationHtml(view, key, className)}`;
   }
   const label = PSALM_OFFICE_LABELS[psalmPresentation.office];
@@ -1196,7 +1226,11 @@ function timedOfficeFocusHtml(section, key) {
   if (isConclusionClosingPage) textClass += " timed-office-closing-text";
   const renderedPageText = isGloriaPage ? pageText.replace(/\s*\*\s*/g, " ") : pageText;
   const content = isScriptureCitation
-    ? ""
+    ? (section.scriptureUnavailable
+      ? `<span class="prayer-text scripture-unavailable-note">${escapeHtml(pageText || "")}</span>`
+      : section.numberedVerses
+        ? `<span class="${textClass} scripture-lesson-text">${numberedLiturgicalTextHtml(renderedPageText)}</span>`
+        : "")
     : `<span class="${textClass}">${hasNumberedVerses && !isClosingPage ? numberedLiturgicalTextHtml(renderedPageText) : timedOfficeTextHtml(renderedPageText)}</span>`;
   const scripturePresentation = scriptureCitationPresentation(section.footnote);
   const scriptureCitationPage = key.endsWith("_OPENING")
@@ -1212,7 +1246,11 @@ function timedOfficeFocusHtml(section, key) {
     ? `<span class="noonday-response">${escapeHtml(section.response)}</span>`
     : "";
   const header = heading ? `${heading}${subtitle}${citation}` : `${citation}${subtitle}`;
-  const pageLabel = isGloriaPage ? "Gloria" : `${section.label}${pageIndex}`;
+  const pageLabel = isGloriaPage
+    ? "Gloria"
+    : (isScriptureCitation && isContinuation && section.citation)
+      ? `${normalizedCitation(section.citation)}${pageIndex}`
+      : `${section.label}${pageIndex}`;
   return `<button class="reading focus prayer-focus noonday-focus" data-reading="${key}" type="button"><span class="label">${escapeHtml(pageLabel)}</span>${header}${scriptureHeading}${content}${scriptureFootnote}${response}</button>`;
 }
 

@@ -11,12 +11,12 @@
 - Daily Office citations for Psalms, Old Testament, New Testament, and Gospel readings.
 - A prayer-first focus sequence followed by the readings and Gloria.
 - Keyboard, touch, and swipe navigation with responsive portrait and landscape layouts.
-- A citation companion meant to be paired with a physical Bible; the app does not reproduce Scripture text.
+- Appointed Daily Office citations plus an optional offline Scripture setting (Off, public-domain WEB, or KJV) for Morning and Evening lesson body text.
 - Offline access after the web app has been fully loaded or installed once while online.
 
 ## Offline behavior
 
-- The app saves its interface, lectionary citations, and prayers for airplane-mode use.
+- The app saves its interface, lectionary citations, prayers, and Scripture verse packs for airplane-mode use.
 - The first complete load or installation requires an internet connection.
 - Browsers may clear stored site data under storage pressure, and reconnecting is required to receive updates.
 
