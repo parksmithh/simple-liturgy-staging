@@ -12,13 +12,13 @@
   "theme_color": "#171716",
   "icons": [
     {
-      "src": "./icon-192.png?v=staging-8ec26f8d746b35e87b7c646089861f4d35805cb9",
+      "src": "./icon-192.png?v=staging-903460d193e9e4b87d0c3e1e76da09827f176caf",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "./icon-512.png?v=staging-8ec26f8d746b35e87b7c646089861f4d35805cb9",
+      "src": "./icon-512.png?v=staging-903460d193e9e4b87d0c3e1e76da09827f176caf",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"

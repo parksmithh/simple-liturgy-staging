@@ -1,8 +1,8 @@
-import { wikipediaUrlForFeast } from "./feast-wikipedia.js?v=staging-8ec26f8d746b35e87b7c646089861f4d35805cb9";
+import { wikipediaUrlForFeast } from "./feast-wikipedia.js?v=staging-903460d193e9e4b87d0c3e1e76da09827f176caf";
 import {
   adaptLegacyTimedOffice,
   officeDocumentToViewSections,
-} from "./office-document.js?v=staging-8ec26f8d746b35e87b7c646089861f4d35805cb9";
+} from "./office-document.js?v=staging-903460d193e9e4b87d0c3e1e76da09827f176caf";
 
 export function parseBundle(text) {
   const readings = new Map();

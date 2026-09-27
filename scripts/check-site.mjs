@@ -522,9 +522,10 @@ await checkAsync("iOS PWA avoids black-translucent status bar blur", async () =>
   assert(appCss.includes("ios-pwa-status-strip"), "app.css must style the iOS PWA status strip");
   assert(appCss.includes("background-clip: text"), "status strip must use background-clip:text so it samples without painting");
   assert(appCss.includes("ios-pwa-blur-panel"), "app.css must style the iOS PWA blur kick panel");
+  assert(appCss.includes("--reader-top"), "reader must share a --reader-top inset for header and menu");
   assert(
-    appCss.includes("max(64px, calc(env(safe-area-inset-top) + 16px))"),
-    "standalone PWA must pad the top UI below the iOS scroll-edge blur band"
+    /--reader-top:\s*max\(24px,\s*calc\(env\(safe-area-inset-top\) \+ 8px\)\)/.test(appCss),
+    "portrait reader header and menu must share the same top inset"
   );
   assert(appJs.includes("kickIosPwaTopBlur"), "app.js must kick iOS PWA top blur on install");
 });
