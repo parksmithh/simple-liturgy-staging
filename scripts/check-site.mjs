@@ -271,6 +271,7 @@ const {
   applyScriptureToTimedOffice,
   formatVerseMarker,
   paginateScriptureVersesByFit,
+  psalmTokensToCitation,
   VERSE_ELLIPSIS,
   versesToPageText,
 } = await import("../scripture-reading.js");
@@ -894,6 +895,51 @@ await checkAsync("scripture preference remaps Simple and Traditional lesson focu
   assert(webView.scripturePages?.OT?.pages?.length === 1, "initial paint is one unfitted page");
   const webHtml = screenHtml(webView);
   assert(webHtml.includes("scripture-lesson-text") || webHtml.includes("scripture-unavailable-note"), "WEB focus shows body or note");
+
+  const psalmFocus = model(bundle, { offset: 0, focus: "PS", focusPage: 0 }, today, collects);
+  assert(psalmTokensToCitation("66, 67") === "Psalm 66; Psalm 67", "plain psalm tokens become citations");
+  assert(psalmTokensToCitation("119:1-24") === "Psalm 119:1-24", "ranged psalm tokens keep verses");
+  assert(psalmTokensToCitation("21:1-7(8-14)").includes("(8-14)"), "optional psalm verses preserved for resolver");
+  assert(psalmTokensToCitation("[59, 60] or 33") === "Psalm 59; Psalm 60", "bracketed or-alternatives take first choice");
+  const webPsalms = applyScriptureToSimpleView(psalmFocus, {
+    scriptureMode: "web",
+    pack: web,
+    psalmDisplayMode: "by-time-of-day",
+    psalmOffice: "morning",
+  });
+  assert(webPsalms.scripturePages?.PS?.verses?.length > 0, "WEB attaches Psalm verses");
+  const psalmHtml = screenHtml(webPsalms, { psalmDisplayMode: "by-time-of-day", psalmOffice: "morning" });
+  assert(psalmHtml.includes("scripture-lesson-text"), "WEB Psalm focus shows body text");
+  assert(psalmHtml.includes("Morning Psalms"), "WEB Psalm focus uses Morning/Evening label");
+  const morningOnly = applyScriptureToSimpleView(psalmFocus, {
+    scriptureMode: "web",
+    pack: web,
+    psalmDisplayMode: "by-time-of-day",
+    psalmOffice: "morning",
+  });
+  const eveningOnly = applyScriptureToSimpleView(psalmFocus, {
+    scriptureMode: "web",
+    pack: web,
+    psalmDisplayMode: "by-time-of-day",
+    psalmOffice: "evening",
+  });
+  assert(
+    morningOnly.scripturePages?.PS?.verses?.length > 0
+    && eveningOnly.scripturePages?.PS?.verses?.length > 0
+    && morningOnly.scripturePages.PS.citation !== eveningOnly.scripturePages.PS.citation,
+    "by-time Psalm scripture uses office-specific citations",
+  );
+  const morningHtml = screenHtml(morningOnly, { psalmDisplayMode: "by-time-of-day", psalmOffice: "morning" });
+  assert(morningHtml.includes("Morning Psalms"), "by-time WEB Psalm focus uses Morning Psalms label");
+  assert(morningHtml.includes("scripture-lesson-text"), "by-time WEB Psalm focus shows body");
+  const offPsalmHtml = screenHtml(psalmFocus);
+  assert(!offPsalmHtml.includes("scripture-lesson-text"), "Off Psalm focus stays citation-only");
+  assert(
+    appJs.includes("effectivePsalmDisplayMode")
+    && appJs.includes('scriptureMode !== "off"')
+    && appJs.includes("by-time-of-day"),
+    "Scripture on forces morning/evening Psalms instead of combined",
+  );
 
   const riteTwo = JSON.parse(await readText("data/daily-office/rite-two.json"));
   const psalter = JSON.parse(await readText("data/daily-office/psalter.json"));

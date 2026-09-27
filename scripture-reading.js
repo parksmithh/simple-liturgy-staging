@@ -1,5 +1,5 @@
-import { editionForMode } from "./scripture-preference.js?v=staging-44de46437b41af40e7d2a28e888e7de398315076";
-import { resolveCitation, unavailableNote } from "./scripture-resolve.js?v=staging-44de46437b41af40e7d2a28e888e7de398315076";
+import { editionForMode } from "./scripture-preference.js?v=staging-8ec26f8d746b35e87b7c646089861f4d35805cb9";
+import { resolveCitation, unavailableNote } from "./scripture-resolve.js?v=staging-8ec26f8d746b35e87b7c646089861f4d35805cb9";
 
 /** Unicode ellipsis used in split-verse markers (7… / …7 / …7…). */
 export const VERSE_ELLIPSIS = "\u2026";
@@ -23,6 +23,65 @@ export function versesToPageText(verses) {
   return (verses || [])
     .map(verse => `${formatVerseMarker(verse.verse)} ${verse.text}`.trim())
     .join("\n\n");
+}
+
+/**
+ * Split joined psalm token strings on commas that are not inside [] or ().
+ * e.g. "66, 67" → ["66","67"]; "[59, 60] or 33, 146" → ["[59, 60] or 33","146"]
+ */
+function splitPsalmTokenString(value) {
+  const parts = [];
+  let depth = 0;
+  let current = "";
+  for (const ch of String(value || "")) {
+    if (ch === "[" || ch === "(") depth += 1;
+    else if (ch === "]" || ch === ")") depth = Math.max(0, depth - 1);
+    if (ch === "," && depth === 0) {
+      if (current.trim()) parts.push(current.trim());
+      current = "";
+      continue;
+    }
+    current += ch;
+  }
+  if (current.trim()) parts.push(current.trim());
+  return parts;
+}
+
+/**
+ * Convert BCP Simple-liturgy psalm tokens into a resolver-ready citation.
+ * Tokens may be an array ("66", "119:1-24") or a joined string ("66, 67").
+ * @returns {string} e.g. "Psalm 66; Psalm 67" or "Psalm 119:1-24" (empty if none)
+ */
+export function psalmTokensToCitation(tokens) {
+  const raw = Array.isArray(tokens)
+    ? tokens.join(", ")
+    : String(tokens || "").replace(/\n+/g, ", ");
+  if (!raw.trim()) return "";
+
+  const citations = [];
+  for (const token of splitPsalmTokenString(raw)) {
+    let cleaned = token.replace(/[\[\]]/g, "").replace(/\*+/g, "").trim();
+    if (!cleaned) continue;
+    const orSplit = cleaned.split(/\s+or\s+/i);
+    if (orSplit.length > 1) cleaned = orSplit[0].trim();
+    for (const piece of cleaned.split(/\s*,\s*/).map(part => part.trim()).filter(Boolean)) {
+      if (/^\d/.test(piece)) citations.push(`Psalm ${piece}`);
+    }
+  }
+  return citations.join("; ");
+}
+
+/** Citation for Simple PS focus given morning/evening token strings and display prefs. */
+export function simplePsalmCitation(psalms, {
+  psalmDisplayMode = "together",
+  psalmOffice = "morning",
+} = {}) {
+  if (!psalms) return "";
+  if (psalmDisplayMode === "by-time-of-day") {
+    const office = psalmOffice === "evening" ? "evening" : "morning";
+    return psalmTokensToCitation(psalms[office] || "");
+  }
+  return psalmTokensToCitation([psalms.morning, psalms.evening].filter(Boolean).join(", "));
 }
 
 /**
@@ -132,6 +191,8 @@ export function scriptureLessonPages({
 export function applyScriptureToSimpleView(view, {
   scriptureMode,
   pack,
+  psalmDisplayMode = "together",
+  psalmOffice = "morning",
 }) {
   if (!view?.values) return view;
   const scripturePages = {};
@@ -144,6 +205,16 @@ export function applyScriptureToSimpleView(view, {
       pack,
     });
     if (built) scripturePages[key] = built;
+  }
+  const psalmCitation = simplePsalmCitation(view.psalms, { psalmDisplayMode, psalmOffice })
+    || psalmTokensToCitation(view.values.PS);
+  if (psalmCitation) {
+    const built = scriptureLessonPages({
+      citation: psalmCitation,
+      scriptureMode,
+      pack,
+    });
+    if (built) scripturePages.PS = built;
   }
   return { ...view, scripturePages };
 }

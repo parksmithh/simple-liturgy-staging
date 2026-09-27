@@ -35,11 +35,11 @@
   <meta name="twitter:image" content="https://simpleliturgy.com/assets/og-simple-liturgy.png?v=3">
   <meta name="twitter:image:alt" content="Simplified Simple Liturgy reader showing Psalms, Old Testament, New Testament, and Gospel citations">
   <title>Simple Liturgy | BCP 1979 Daily Office Reader</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=staging-44de46437b41af40e7d2a28e888e7de398315076">
-  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=staging-44de46437b41af40e7d2a28e888e7de398315076">
-  <link rel="icon" href="./icon.svg?v=staging-44de46437b41af40e7d2a28e888e7de398315076" type="image/svg+xml">
-  <link rel="stylesheet" href="./design-tokens.css?v=staging-44de46437b41af40e7d2a28e888e7de398315076">
-  <link rel="stylesheet" href="./app.css?v=staging-44de46437b41af40e7d2a28e888e7de398315076">
+  <link rel="manifest" href="./manifest.webmanifest?v=staging-8ec26f8d746b35e87b7c646089861f4d35805cb9">
+  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=staging-8ec26f8d746b35e87b7c646089861f4d35805cb9">
+  <link rel="icon" href="./icon.svg?v=staging-8ec26f8d746b35e87b7c646089861f4d35805cb9" type="image/svg+xml">
+  <link rel="stylesheet" href="./design-tokens.css?v=staging-8ec26f8d746b35e87b7c646089861f4d35805cb9">
+  <link rel="stylesheet" href="./app.css?v=staging-8ec26f8d746b35e87b7c646089861f4d35805cb9">
 </head>
 <body>
   <div class="ios-pwa-status-strip" aria-hidden="true"></div>
@@ -217,7 +217,7 @@
         <label><input type="radio" name="scripture-mode" value="web"> <span>Simple (WEB)</span></label>
         <label><input type="radio" name="scripture-mode" value="kjv"> <span>Traditional (KJV)</span></label>
       </fieldset>
-      <p class="settings-note">Applies to Morning and Evening appointed lessons in both Simple and Traditional Prayer. Off keeps the citation only. WEB and KJV stay available offline after install. Lesson pages auto-fit the screen; tap the edges to turn pages.</p>
+      <p class="settings-note">Applies to Morning and Evening appointed Psalms and lessons in both Simple and Traditional Prayer. Off keeps the citation only. WEB and KJV stay available offline after install. When Scripture is on, Simple Psalms always follow morning/evening by time of day (not together). Pages auto-fit the screen; tap the edges to turn pages.</p>
     </section>
 
     <section class="settings-card psalm-settings" aria-labelledby="psalm-settings-title">
@@ -228,7 +228,7 @@
         <label><input type="radio" name="psalm-display" value="together" checked> <span>Together</span></label>
         <label><input type="radio" name="psalm-display" value="by-time-of-day"> <span>By time of day</span></label>
       </fieldset>
-      <p class="settings-note">This setting applies to Simple format. Midnight to noon shows Morning Psalms; noon to midnight shows Evening Psalms.</p>
+      <p class="settings-note">This setting applies to Simple format when Scripture text is Off. Midnight to noon shows Morning Psalms; noon to midnight shows Evening Psalms. When WEB or KJV is selected, Psalms always use by time of day.</p>
     </section>
 
     <section class="settings-card feast-links-settings" aria-labelledby="feast-links-title">
@@ -404,6 +404,6 @@
     </form>
   </dialog>
 
-  <script type="module" src="./app.js?v=staging-44de46437b41af40e7d2a28e888e7de398315076"></script>
+  <script type="module" src="./app.js?v=staging-8ec26f8d746b35e87b7c646089861f4d35805cb9"></script>
 </body>
 </html>
