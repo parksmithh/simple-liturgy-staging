@@ -1,0 +1,38 @@
+# Simple Liturgy
+
+> A focused, offline-ready web reader for the 1979 Book of Common Prayer Daily Office lectionary and daily prayers.
+
+## Primary site
+
+- [Simple Liturgy](https://simpleliturgy.com/): Open the reader and installable web app.
+
+## What the app provides
+
+- Daily Office citations for Psalms, Old Testament, New Testament, and Gospel readings.
+- A prayer-first focus sequence followed by the readings and Gloria.
+- Keyboard, touch, and swipe navigation with responsive portrait and landscape layouts.
+- A citation companion meant to be paired with a physical Bible; the app does not reproduce Scripture text.
+- Offline access after the web app has been fully loaded or installed once while online.
+
+## Offline behavior
+
+- The app saves its interface, lectionary citations, and prayers for airplane-mode use.
+- The first complete load or installation requires an internet connection.
+- Browsers may clear stored site data under storage pressure, and reconnecting is required to receive updates.
+
+## Project background
+
+- Simple Liturgy is a Beginner's Apprenticeship project.
+- [Beginner's Apprenticeship](https://beginnersapprenticeship.com/about) creates inter-denominational books, music, podcasts, and simple liturgies that adapt historic Christian prayer rhythms for families and households with small children.
+
+## Reference and source
+
+- [BCP Online Daily Office Lectionary](https://www.bcponline.org/DOLectionary/dolectionary.html): Reference used for calendar and citation review.
+- [Simple Liturgy source](https://github.com/parksmithh/simple-liturgy): Production website source.
+- [Daily Office Reader staging source](https://github.com/parksmithh/daily-office-reader): Hardware, firmware, data, and staging web app development.
+- [Terms & Licensing](https://simpleliturgy.com/terms.html): Personal-use, contribution, trademark, and commercial-permission terms.
+- [Source license](https://simpleliturgy.com/LICENSE.md): PolyForm Noncommercial License 1.0.0 for covered web software.
+- [License notice](https://simpleliturgy.com/NOTICE): Copyright notice and repository scope exclusions.
+- [Contributing terms](https://simpleliturgy.com/CONTRIBUTING.md): Contributor rights and grant terms.
+
+Simple Liturgy is an independent project.

@@ -1,0 +1,71 @@
+collection,number,name,filename,native_width_px,native_height_px,source_x1,source_y1,source_x2,source_y2,added_outer_padding_px
+liturgical-calendar,1,Solemnity,lit-01-solemnity.svg,99,105,25,76,104,161,10
+liturgical-calendar,2,Feast,lit-02-feast.svg,98,103,133,81,211,164,10
+liturgical-calendar,3,Christ the King,lit-03-christ-the-king.svg,105,96,235,83,320,159,10
+liturgical-calendar,4,Lamb of God,lit-04-lamb-of-god.svg,109,110,340,74,429,164,10
+liturgical-calendar,5,Maundy Thursday,lit-05-maundy-thursday.svg,76,108,462,76,518,164,10
+liturgical-calendar,6,Good Friday,lit-06-good-friday.svg,68,98,573,81,621,159,10
+liturgical-calendar,7,Holy Saturday,lit-07-holy-saturday.svg,109,91,656,91,745,162,10
+liturgical-calendar,8,Easter Sunday,lit-08-easter-sunday.svg,106,102,762,81,848,163,10
+liturgical-calendar,9,Easter Season,lit-09-easter-season.svg,100,104,25,208,105,292,10
+liturgical-calendar,10,Pentecost,lit-10-pentecost.svg,83,107,139,205,202,292,10
+liturgical-calendar,11,Trinity Sunday,lit-11-trinity-sunday.svg,105,104,235,208,320,292,10
+liturgical-calendar,12,Ordinary Time,lit-12-ordinary-time.svg,86,108,352,207,418,295,10
+liturgical-calendar,13,Ordination,lit-13-ordination.svg,86,110,456,202,522,292,10
+liturgical-calendar,14,Baptism,lit-14-baptism.svg,96,105,559,210,635,295,10
+liturgical-calendar,15,Anointing of the Sick,lit-15-anointing-of-the-sick.svg,85,102,669,210,734,292,10
+liturgical-calendar,16,St. Peter & St. Paul,lit-16-st-peter-st-paul.svg,97,100,766,210,843,290,10
+liturgical-calendar,17,Martyrdom,lit-17-martyrdom.svg,102,105,28,335,110,420,10
+liturgical-calendar,18,Bishop,lit-18-bishop.svg,93,105,134,335,207,420,10
+liturgical-calendar,19,Dedication of a Church,lit-19-dedication-of-a-church.svg,86,107,244,333,310,420,10
+liturgical-calendar,20,All Angels,lit-20-all-angels.svg,108,107,338,334,426,421,10
+liturgical-calendar,21,Advent,lit-21-advent.svg,117,101,440,337,537,418,10
+liturgical-calendar,22,Christmas Eve,lit-22-christmas-eve.svg,105,105,554,335,639,420,10
+liturgical-calendar,23,Christmas Day,lit-23-christmas-day.svg,110,97,655,341,745,418,10
+liturgical-calendar,24,Presentation of Christ,lit-24-presentation-of-christ.svg,88,101,771,337,839,418,10
+liturgical-calendar,25,Epiphany,lit-25-epiphany.svg,109,88,20,473,109,541,10
+liturgical-calendar,26,Epiphany Season,lit-26-epiphany-season.svg,105,107,128,463,213,550,10
+liturgical-calendar,27,Transfiguration,lit-27-transfiguration.svg,87,102,244,465,311,547,10
+liturgical-calendar,28,Palm Sunday,lit-28-palm-sunday.svg,96,108,342,459,418,547,10
+liturgical-calendar,29,Holy Communion,lit-29-holy-communion.svg,74,113,462,459,516,552,10
+liturgical-calendar,30,Crown of Thorns,lit-30-crown-of-thorns.svg,112,113,549,459,641,552,10
+liturgical-calendar,31,Nails,lit-31-nails.svg,94,100,664,468,738,548,10
+liturgical-calendar,32,Spear,lit-32-spear.svg,90,100,770,467,840,547,10
+liturgical-calendar,33,Empty Tomb,lit-33-empty-tomb.svg,109,84,20,607,109,671,10
+liturgical-calendar,34,Paschal Candle,lit-34-paschal-candle.svg,52,115,154,582,186,677,10
+liturgical-calendar,35,Peace,lit-35-peace.svg,102,108,236,587,318,675,10
+liturgical-calendar,36,Harvest,lit-36-harvest.svg,67,117,358,583,405,680,10
+liturgical-calendar,37,Prayer,lit-37-prayer.svg,75,108,461,589,516,677,10
+liturgical-calendar,38,Altar,lit-38-altar.svg,104,101,554,594,638,675,10
+liturgical-calendar,39,Praise,lit-39-praise.svg,85,101,669,594,734,675,10
+liturgical-calendar,40,Hope,lit-40-hope.svg,98,106,766,591,844,677,10
+saints,1,St. Peter,saint-01-st-peter.svg,106,121,886,71,972,172,10
+saints,2,St. Paul,saint-02-st-paul.svg,109,122,996,72,1085,174,10
+saints,3,St. Mary,saint-03-st-mary.svg,94,117,1107,77,1181,174,10
+saints,4,St. Benedict,saint-04-st-benedict.svg,101,120,1213,74,1294,174,10
+saints,5,St. Francis,saint-05-st-francis.svg,102,117,1326,77,1408,174,10
+saints,6,St. Teresa of Avila,saint-06-st-teresa-of-avila.svg,105,113,1429,81,1514,174,10
+saints,7,St. Augustine,saint-07-st-augustine.svg,104,117,883,205,967,302,10
+saints,8,St. Joseph,saint-08-st-joseph.svg,103,112,992,210,1075,302,10
+saints,9,St. Joan of Arc,saint-09-st-joan-of-arc.svg,112,114,1095,208,1187,302,10
+saints,10,St. Patrick,saint-10-st-patrick.svg,109,120,1210,202,1299,302,10
+saints,11,St. Catherine of Alexandria,saint-11-st-catherine-of-alexandria.svg,102,116,1319,207,1401,303,10
+saints,12,St. John Chrysostom,saint-12-st-john-chrysostom.svg,107,117,1430,205,1517,302,10
+saints,13,St. Thomas Aquinas,saint-13-st-thomas-aquinas.svg,117,114,881,336,978,430,10
+saints,14,St. Margaret,saint-14-st-margaret.svg,97,109,995,341,1072,430,10
+saints,15,St. Nicholas,saint-15-st-nicholas.svg,101,120,1103,330,1184,430,10
+saints,16,St. Lucy,saint-16-st-lucy.svg,105,114,1216,336,1301,430,10
+saints,17,St. John the Baptist,saint-17-st-john-the-baptist.svg,114,114,1319,336,1413,430,10
+saints,18,St. Stephen,saint-18-st-stephen.svg,102,114,1429,336,1511,430,10
+saints,19,St. Philip,saint-19-st-philip.svg,99,116,888,463,967,559,10
+saints,20,St. James the Apostle,saint-20-st-james-the-apostle.svg,104,114,995,462,1079,556,10
+saints,21,St. Matthias,saint-21-st-matthias.svg,101,119,1105,460,1186,559,10
+saints,22,St. Luke,saint-22-st-luke.svg,97,117,1210,462,1287,559,10
+saints,23,St. Mark,saint-23-st-mark.svg,112,117,1317,462,1409,559,10
+saints,24,St. John the Evangelist,saint-24-st-john-the-evangelist.svg,105,116,1431,463,1516,559,10
+saints,25,St. Martha,saint-25-st-martha.svg,98,113,888,596,966,689,10
+saints,26,St. Mary Magdalene,saint-26-st-mary-magdalene.svg,91,115,996,594,1067,689,10
+saints,27,St. Michael the Archangel,saint-27-st-michael-the-archangel.svg,116,113,1095,596,1191,689,10
+saints,28,St. Gabriel the Archangel,saint-28-st-gabriel-the-archangel.svg,115,113,1206,596,1301,689,10
+saints,29,St. Raphael the Archangel,saint-29-st-raphael-the-archangel.svg,112,113,1315,596,1407,689,10
+saints,30,All Saints,saint-30-all-saints.svg,118,116,1420,591,1518,687,10

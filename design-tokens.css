@@ -1,0 +1,159 @@
+:root {
+  color-scheme: light;
+
+  --font-family-ui: ui-monospace, "SFMono-Regular", Consolas, monospace;
+  --font-family-display: Georgia, "Times New Roman", serif;
+  --font-family-reader: var(--font-family-ui);
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+  --font-weight-black: 900;
+  --font-weight-reader-content: var(--font-weight-extrabold);
+
+  --type-eyebrow: 10px;
+  --type-app-title: clamp(18px, 4.6vw, 27px);
+  --type-section-title: clamp(20px, 4.6vw, 26px);
+  --type-dialog-title: 24px;
+  --type-ui-control: 11px;
+  --type-footer: 12px;
+  --type-reader-base: clamp(13px, 3vw, 20px);
+  --type-reader-header: .72em;
+  --type-reader-date: 1em;
+  --type-reader-label: .72em;
+  --type-reader-banner: var(--type-reader-date);
+  --type-reader-citation: .92em;
+  --type-reader-subtitle: var(--type-reader-label);
+  --type-reader-footnote: var(--type-reader-label);
+  --type-reader-focus-label: var(--type-reader-label);
+  --type-reader-focus-citation: clamp(30px, 8vw, 52px);
+  --type-reader-prayer: clamp(20px, 4.8vw, 34px);
+  --type-reader-noonday: clamp(20px, 4.8vw, 30px);
+  --type-reader-aside: .88em;
+  --type-reader-symbol: .82em;
+  --type-reader-warning: .62em;
+  --type-reader-hint: .62em;
+  --type-today-chevron: 1.18em;
+  --type-control-glyph: clamp(28px, 6vw, 44px);
+  --type-control-label: clamp(11px, 2.4vw, 16px);
+  --space-reading-group: 20px;
+  --size-reader-art-cell-portrait: clamp(48px, 14vw, 58px);
+  --size-reader-art-icon-portrait: clamp(42px, 12vw, 50px);
+  --size-reader-art-icon-landscape: clamp(56px, min(7vw, 9vh), 112px);
+  --space-reader-art-gap-landscape: clamp(6px, 1.2vw, 22px);
+
+  --color-bwr-black: #171716;
+  --color-bwr-paper: #f2efdf;
+  --color-bwr-red: #b3181e;
+  --color-bwr-red-bright: #ff4d57;
+  --color-white: #fff;
+  --screen-ink: var(--color-bwr-black);
+  --screen-paper: var(--color-bwr-paper);
+  --ink: var(--screen-ink);
+  --paper: var(--screen-paper);
+  --red: var(--color-bwr-red);
+  --paper-shadow: #d8d2bb;
+  --paper-texture-opacity: .22;
+  --paper-texture-strength: 12%;
+  --app-background: #e9e6dc;
+  --app-background-deep: #d3d0c5;
+  --app-text: var(--color-bwr-black);
+  --shell: #d7d9d2;
+  --shell-raised: #f1f0e9;
+  --line: #858a83;
+  --control: #f8f7f1;
+  --control-deep: #d9dcd5;
+  --control-text: var(--color-bwr-black);
+  --control-shadow: #8d928b;
+  --eyebrow: #4b504b;
+  --screen-border: #141614;
+  --dialog-border: #777;
+  --dialog-backdrop: #17171688;
+  --reader-shadow: 0 24px 70px #0004, inset 0 1px #ffffff36;
+  --control-shadow-rest: inset 0 2px #ffffff24, inset 0 -2px #00000020, 0 7px 0 var(--control-shadow);
+  --control-shadow-active: inset 0 2px #ffffff18, inset 0 -2px #00000018, 0 2px 0 var(--control-shadow);
+  --landscape-screen-shadow: inset 0 0 24px #79745b30;
+
+  font-family: var(--font-family-ui);
+  background: var(--app-background);
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --screen-ink: var(--color-bwr-paper);
+  --screen-paper: var(--color-bwr-black);
+  --red: var(--color-bwr-red-bright);
+  --paper-shadow: #4b4a43;
+  --paper-texture-opacity: .2;
+  --paper-texture-strength: 10%;
+  --app-background: #111311;
+  --app-background-deep: #1b1e1b;
+  --app-text: #f4f4ef;
+  --shell: #202320;
+  --shell-raised: #303430;
+  --line: #555b55;
+  --control: #202320;
+  --control-deep: #111311;
+  --control-text: #f4f4ef;
+  --control-shadow: #0b0c0b;
+  --eyebrow: #d7dcd7;
+  --screen-border: #656961;
+  --dialog-backdrop: #000b;
+}
+
+.reader .device-screen {
+  --type-reader-base: clamp(18px, 2vw, 30px);
+  --type-reader-prayer: clamp(24px, 3.4vw, 42px);
+}
+
+@media (max-width: 470px) {
+  .device-screen { --type-reader-header: .68em; }
+}
+
+@media (min-width: 768px) and (min-height: 700px) {
+  .device-screen {
+    --type-reader-base: clamp(18px, 2.7cqi, 24px);
+    --type-reader-label: clamp(12px, 1.8cqi, 16px);
+    --type-reader-citation: clamp(20px, 3.5cqi, 28px);
+  }
+
+  .reader .device-screen {
+    --type-reader-header: clamp(18px, 1.6vw, 28px);
+    --type-reader-label: clamp(22px, 1.6vw, 30px);
+    --type-reader-citation: clamp(40px, 3.6vw, 68px);
+  }
+}
+
+@media (orientation: landscape) and (max-height: 700px) {
+  .device-screen {
+    --type-reader-base: clamp(19px, 5.2vh, 30px);
+    --type-reader-header: clamp(11px, 2.5vh, 15px);
+    --type-reader-date: clamp(13px, 3vh, 17px);
+    --type-reader-label: .68em;
+    --type-reader-banner: var(--type-reader-date);
+    --type-reader-citation: 1.12em;
+    --type-reader-focus-citation: clamp(46px, 13vh, 76px);
+    --type-reader-prayer: clamp(20px, 5vh, 34px);
+  }
+
+  .reader .device-screen {
+    --type-reader-base: clamp(20px, 5.2vh, 30px);
+  }
+}
+
+@media (orientation: portrait) {
+  .device-screen {
+    --type-reader-label: clamp(13px, 3.5vw, 17px);
+    --type-reader-citation: clamp(23px, 6.5vw, 34px);
+    --type-reader-focus-label: clamp(16px, 4.8vw, 22px);
+    --type-reader-focus-citation: clamp(28px, 7.2vw, 44px);
+    --space-reader-section: 24px;
+    --space-reading-group: 24px;
+  }
+}
+
+@media (orientation: portrait) and (max-width: 767px),
+  (orientation: portrait) and (hover: none) and (pointer: coarse) {
+  .device-screen { --type-reader-header: clamp(13px, 3.5vw, 17px); }
+}
