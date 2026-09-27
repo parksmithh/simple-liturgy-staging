@@ -1,5 +1,5 @@
-import { editionForMode } from "./scripture-preference.js?v=staging-fc8142b75c186768a95cae50d74f6b317dfaa38b";
-import { resolveCitation, unavailableNote } from "./scripture-resolve.js?v=staging-fc8142b75c186768a95cae50d74f6b317dfaa38b";
+import { editionForMode } from "./scripture-preference.js?v=staging-44de46437b41af40e7d2a28e888e7de398315076";
+import { resolveCitation, unavailableNote } from "./scripture-resolve.js?v=staging-44de46437b41af40e7d2a28e888e7de398315076";
 
 /** Unicode ellipsis used in split-verse markers (7… / …7 / …7…). */
 export const VERSE_ELLIPSIS = "\u2026";

@@ -1,4 +1,4 @@
-import { createBoundaryTimer } from "./boundary-timer.js?v=staging-fc8142b75c186768a95cae50d74f6b317dfaa38b";
+import { createBoundaryTimer } from "./boundary-timer.js?v=staging-44de46437b41af40e7d2a28e888e7de398315076";
 
 const STORAGE_KEY = "simple-liturgy.psalm-display";
 const BY_TIME_OF_DAY = "by-time-of-day";
