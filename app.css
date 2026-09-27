@@ -423,6 +423,8 @@ h1 { margin: 0; font: var(--font-weight-semibold) var(--type-app-title) var(--fo
 }
 .scripture-lesson-text .noonday-psalm-number {
   flex: 0 0 auto;
+  min-width: 3ch;
+  text-align: right;
 }
 .scripture-lesson-text .noonday-call-response {
   flex: 1 1 auto;
