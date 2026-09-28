@@ -81,6 +81,7 @@ function unzipXml(zipPath, xmlName, workDir) {
 function stripMarkup(fragment) {
   return fragment
     .replace(/<f\b[\s\S]*?<\/f>/gi, "")
+    .replace(/<x\b[\s\S]*?<\/x>/gi, "")
     .replace(/<note\b[\s\S]*?<\/note>/gi, "")
     .replace(/<fig\b[\s\S]*?<\/fig>/gi, "")
     .replace(/<[^>]+>/g, "")

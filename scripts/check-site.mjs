@@ -935,6 +935,13 @@ await checkAsync("scripture packs resolve appointed lesson samples", async () =>
   const hebrews = resolveCitation("Hebrews 11:32--12:2", web);
   assert(hebrews.ok && hebrews.verses.length > 10, "cross-chapter Hebrews");
 
+  const heb15 = web.books.HEB?.["1"]?.["5"] || "";
+  assert(heb15.includes("You are my Son"), "WEB Hebrews 1:5 keeps verse text");
+  assert(!/1:5\s+Psalms/.test(heb15) && !heb15.includes("2 Samuel 7:14"), "WEB omits USFX cross-reference footnotes");
+  assert(!(web.books.MAT?.["1"]?.["23"] || "").includes("Isaiah 7:14"), "WEB Matthew 1:23 omits cross-reference");
+  const ingestSource = await readText("scripts/ingest-scripture.mjs");
+  assert(ingestSource.includes("<x\\b"), "ingest stripMarkup removes USFX <x> cross-refs");
+
   const ecclus = resolveCitation("Ecclus. 2:1-11", kjv);
   assert(ecclus.ok, `Ecclus. alias: ${ecclus.reason || "ok"}`);
 
