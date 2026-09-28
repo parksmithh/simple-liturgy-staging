@@ -923,10 +923,10 @@ dialog button { width: 100%; border: 1px solid var(--dialog-border); border-radi
 
 @media (orientation: portrait) and (max-width: 767px),
   (orientation: portrait) and (hover: none) and (pointer: coarse) {
-  /* Match the menu's original high inset — its paper chip stays readable in the
-     iOS top blur band, so keep the SUN/date header on that same top edge. */
+  /* Keep SUN/date + ⋮ menu on one top edge, clear of the status bar /
+     Dynamic Island. A 12px inset hid the weekday/date under system chrome. */
   .reader {
-    --reader-top: max(12px, calc(env(safe-area-inset-top) + 6px));
+    --reader-top: max(56px, calc(env(safe-area-inset-top) + 8px));
     --reader-right: max(12px, env(safe-area-inset-right));
   }
   .header-summary { line-height: 1.25; }
@@ -940,10 +940,6 @@ dialog button { width: 100%; border: 1px solid var(--dialog-border); border-radi
       max(20px, calc(env(safe-area-inset-bottom) + 8px))
       max(18px, env(safe-area-inset-left));
   }
-  .screen-header-copy {
-    /* Opaque paper behind the weekday/date so it reads like the menu chip. */
-    background: var(--paper);
-  }
   .reader-menu {
     top: var(--reader-top);
     right: var(--reader-right);
@@ -953,7 +949,7 @@ dialog button { width: 100%; border: 1px solid var(--dialog-border); border-radi
 .reader.focus-mode .device-screen { padding: 0; }
 .reader.focus-mode .screen-copy {
   gap: clamp(6px, 1.5vh, 12px);
-  padding-top: max(12px, calc(env(safe-area-inset-top) + 6px));
+  padding-top: var(--reader-top, max(56px, calc(env(safe-area-inset-top) + 8px)));
   padding-right: max(12px, env(safe-area-inset-right));
   padding-bottom: max(12px, calc(env(safe-area-inset-bottom) + 6px));
   padding-left: max(12px, env(safe-area-inset-left));

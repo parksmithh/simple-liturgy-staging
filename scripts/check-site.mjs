@@ -545,8 +545,8 @@ await checkAsync("iOS PWA avoids black-translucent status bar blur", async () =>
   assert(appCss.includes("ios-pwa-blur-panel"), "app.css must style the iOS PWA blur kick panel");
   assert(appCss.includes("--reader-top"), "reader must share a --reader-top inset for header and menu");
   assert(
-    /--reader-top:\s*max\(12px,\s*calc\(env\(safe-area-inset-top\) \+ 6px\)\)/.test(appCss),
-    "portrait reader header must sit on the same high top inset as the menu"
+    /--reader-top:\s*max\(56px,\s*calc\(env\(safe-area-inset-top\) \+ 8px\)\)/.test(appCss),
+    "portrait reader header must clear the status bar so SUN/date stay visible"
   );
   assert(appJs.includes("kickIosPwaTopBlur"), "app.js must kick iOS PWA top blur on install");
 });
