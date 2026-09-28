@@ -848,7 +848,7 @@ await checkAsync("scripture packs resolve appointed lesson samples", async () =>
 
   // Tiny height forces mid-verse splits so markers appear.
   let call = 0;
-  const pages = paginateScriptureVersesByFit(webIsaiah.verses, candidate => {
+  const { pages } = paginateScriptureVersesByFit(webIsaiah.verses, candidate => {
     call += 1;
     const words = candidate.split(/\s+/).length;
     return words <= 12;
@@ -961,6 +961,30 @@ await checkAsync("scripture preference remaps Simple and Traditional lesson focu
     && eveningPage.indexOf("Psalm 19") < eveningPage.indexOf("Psalm 46"),
     "evening WEB Psalms sequence chapter headings in body",
   );
+  const psalmPage0 = screenHtml({ ...multiEvening, focusPage: 0 }, { psalmDisplayMode: "by-time-of-day", psalmOffice: "evening" });
+  assert(psalmPage0.includes("Evening Psalms"), "Psalm page 1 label is Evening Psalms");
+  assert(!/class="label">Psalm 19/.test(psalmPage0), "Psalm page 1 label is not the chapter title");
+  const fitted = paginateScriptureVersesByFit(multiEvening.scripturePages.PS.verses, candidate => {
+    const blocks = candidate.split(/\n{2,}/).length;
+    return blocks <= 3;
+  });
+  assert(fitted.pages.length > 1, "fitted Psalms span multiple pages");
+  assert(fitted.pageHeadings[0] === "Psalm 19", "page 0 heading tracks first chapter");
+  const continued = {
+    ...multiEvening,
+    focusPage: 1,
+    scripturePages: {
+      ...multiEvening.scripturePages,
+      PS: {
+        ...multiEvening.scripturePages.PS,
+        pages: fitted.pages,
+        pageHeadings: fitted.pageHeadings,
+      },
+    },
+  };
+  const psalmPage1 = screenHtml(continued, { psalmDisplayMode: "by-time-of-day", psalmOffice: "evening" });
+  assert(/class="label">Psalm \d+ \(2\//.test(psalmPage1), "Psalm page 2+ label is the active chapter");
+  assert(!psalmPage1.includes("Evening Psalms"), "Psalm page 2+ does not keep Evening Psalms label");
   const headed = withChapterHeadings([
     { bookId: "PSA", chapter: 19, verse: 1, text: "a" },
     { bookId: "PSA", chapter: 19, verse: 2, text: "b" },

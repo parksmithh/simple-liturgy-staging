@@ -1,5 +1,5 @@
-import { editionForMode } from "./scripture-preference.js?v=staging-bd232a0f52e89838c6a5d61dc70f28a5611bc5ce";
-import { resolveCitation, unavailableNote } from "./scripture-resolve.js?v=staging-bd232a0f52e89838c6a5d61dc70f28a5611bc5ce";
+import { editionForMode } from "./scripture-preference.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
+import { resolveCitation, unavailableNote } from "./scripture-resolve.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
 
 /** Unicode ellipsis used in split-verse markers (7… / …7 / …7…). */
 export const VERSE_ELLIPSIS = "\u2026";
@@ -169,16 +169,26 @@ export function simplePsalmCitation(psalms, {
  * Pack verse fragments into pages that fill available height.
  * `fits(pageText, pageIndex)` returns true when the candidate fits.
  * Mid-verse splits keep the verse marker with leading/trailing ellipsis.
+ * @returns {{ pages: string[], pageHeadings: (string|null)[] }}
+ *   pageHeadings[i] is the chapter title in force at the start of page i
+ *   (leading heading on that page, else the chapter continued from prior pages).
  */
 export function paginateScriptureVersesByFit(verses, fits) {
-  if (!verses?.length) return [];
+  if (!verses?.length) return { pages: [], pageHeadings: [] };
   const pages = [];
+  const pageHeadings = [];
   let blocks = [];
+  let currentHeading = null;
 
   const pageText = list => list.map(block => `${block.marker} ${block.text}`.trim()).join("\n\n");
   const tryFit = list => fits(pageText(list), pages.length);
   const commit = () => {
     if (!blocks.length) return;
+    const leading = blocks[0]?.heading ? blocks[0].marker : null;
+    pageHeadings.push(leading || currentHeading);
+    for (const block of blocks) {
+      if (block.heading) currentHeading = block.marker;
+    }
     pages.push(pageText(blocks));
     blocks = [];
   };
@@ -187,9 +197,9 @@ export function paginateScriptureVersesByFit(verses, fits) {
     if (verse?.kind === "heading") {
       const marker = String(verse.text || "").trim();
       if (!marker) continue;
-      const next = [...blocks, { marker, text: "" }];
+      const next = [...blocks, { marker, text: "", heading: true }];
       if (blocks.length && !tryFit(next)) commit();
-      blocks.push({ marker, text: "" });
+      blocks.push({ marker, text: "", heading: true });
       continue;
     }
 
@@ -236,7 +246,30 @@ export function paginateScriptureVersesByFit(verses, fits) {
     }
   }
   commit();
-  return pages;
+  return { pages, pageHeadings };
+}
+
+/** Chapter title in force at the start of an unfitted (single) page. */
+export function initialScripturePageHeading(verses) {
+  for (const verse of verses || []) {
+    if (verse?.kind === "heading" && verse.text) return String(verse.text);
+  }
+  return null;
+}
+
+/**
+ * Body text for a scripture page. On continuation pages, a leading chapter
+ * heading that already appears as the page title is omitted from the body.
+ */
+export function scripturePageBodyText(built, page) {
+  let text = built?.pages?.[page] || "";
+  if (!built?.chapterHeadings || page <= 0) return text;
+  const title = built.pageHeadings?.[page];
+  if (!title) return text;
+  if (text === title) return "";
+  if (text.startsWith(`${title}\n\n`)) return text.slice(title.length + 2);
+  if (text.startsWith(`${title}\n`)) return text.slice(title.length + 1);
+  return text;
 }
 
 /**
@@ -277,6 +310,9 @@ export function scriptureLessonPages({
     citation: resolved.citation,
     unavailable: false,
     chapterHeadings: decorated.chapterHeadings,
+    pageHeadings: decorated.chapterHeadings
+      ? [initialScripturePageHeading(decorated.verses)]
+      : null,
   };
 }
 
@@ -333,6 +369,7 @@ export function applyScriptureToTimedOffice(office, {
       numberedVerses: !built.unavailable,
       preservePages: built.unavailable,
       chapterHeadings: Boolean(built.chapterHeadings),
+      pageHeadings: built.pageHeadings || null,
     };
   }
   return { ...office, sections };

@@ -1,8 +1,9 @@
-import { wikipediaUrlForFeast } from "./feast-wikipedia.js?v=staging-bd232a0f52e89838c6a5d61dc70f28a5611bc5ce";
+import { wikipediaUrlForFeast } from "./feast-wikipedia.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
 import {
   adaptLegacyTimedOffice,
   officeDocumentToViewSections,
-} from "./office-document.js?v=staging-bd232a0f52e89838c6a5d61dc70f28a5611bc5ce";
+} from "./office-document.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
+import { scripturePageBodyText } from "./scripture-reading.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
 
 export function parseBundle(text) {
   const readings = new Map();
@@ -1161,15 +1162,20 @@ function readingContentHtml(view, key, className, psalmPresentation) {
     const page = Math.min(view.focusPage || 0, built.pages.length - 1);
     const pageIndex = built.pages.length > 1 ? ` (${page + 1}/${built.pages.length})` : "";
     const citationText = built.citation || view.values[key] || "";
+    const pageText = scripturePageBodyText(built, page);
     const body = built.unavailable
       ? `<span class="prayer-text scripture-unavailable-note">${escapeHtml(built.pages[page] || "")}</span>`
-      : `<span class="prayer-text noonday-text timed-office-numbered-verses scripture-lesson-text">${numberedLiturgicalTextHtml(built.pages[page] || "")}</span>`;
+      : `<span class="prayer-text noonday-text timed-office-numbered-verses scripture-lesson-text">${numberedLiturgicalTextHtml(pageText)}</span>`;
     const sectionLabel = key === "PS" && psalmPresentation.byTime
       ? `${PSALM_OFFICE_LABELS[psalmPresentation.office]} Psalms`
       : READING_LABELS[key];
-    // Psalm chapter headings live in the body; keep the office label on every page
-    // instead of a combined "Psalm 19; Psalm 46" focus-cite / continuation title.
+    // Multi-chapter / Psalm streams: page 1 uses the section label; later pages use the
+    // active chapter title (Psalm 19, Hebrews 12, …), matching lesson citation chrome.
     if (built.chapterHeadings) {
+      if (page > 0) {
+        const chapterTitle = built.pageHeadings?.[page] || citationText;
+        return `<span class="label">${escapeHtml(chapterTitle)}${pageIndex}</span>${body}`;
+      }
       return `<span class="label">${sectionLabel}${pageIndex}</span>${body}`;
     }
     if (page > 0) {
@@ -1228,10 +1234,13 @@ function timedOfficeFocusHtml(section, key) {
   const subtitle = section.subtitle && !isContinuation
     ? `<span class="noonday-subtitle${section.heading ? " timed-office-section-subtitle" : ""}">${escapeHtml(section.subtitle)}</span>`
     : "";
-  const pageText = section.pages ? section.pages[section.page] : section.text;
+  const rawPageText = section.pages ? section.pages[section.page] : section.text;
+  const pageText = isScriptureCitation && section.chapterHeadings
+    ? scripturePageBodyText(section, section.page || 0)
+    : rawPageText;
   const isClosingPage = Boolean(section.closingPage && section.page === section.pages.length - 1);
   const lastPage = !section.pages || section.page === section.pages.length - 1;
-  const isGloriaPage = isClosingPage && /^Glory to the Father\b/i.test(pageText.trim());
+  const isGloriaPage = isClosingPage && /^Glory to the Father\b/i.test(String(rawPageText || "").trim());
   const isConclusionClosingPage = key.endsWith("_CONCLUSION") && lastPage;
   let textClass = "prayer-text noonday-text";
   if (key.endsWith("_OPENING")) textClass += " noonday-opening-text";
@@ -1239,10 +1248,10 @@ function timedOfficeFocusHtml(section, key) {
   if (section.numberedVerses && !isClosingPage) textClass += " timed-office-numbered-verses";
   if (isGloriaPage) textClass += " timed-office-gloria-text";
   if (isConclusionClosingPage) textClass += " timed-office-closing-text";
-  const renderedPageText = isGloriaPage ? pageText.replace(/\s*\*\s*/g, " ") : pageText;
+  const renderedPageText = isGloriaPage ? String(pageText || "").replace(/\s*\*\s*/g, " ") : pageText;
   const content = isScriptureCitation
     ? (section.scriptureUnavailable
-      ? `<span class="prayer-text scripture-unavailable-note">${escapeHtml(pageText || "")}</span>`
+      ? `<span class="prayer-text scripture-unavailable-note">${escapeHtml(rawPageText || "")}</span>`
       : section.numberedVerses
         ? `<span class="${textClass} scripture-lesson-text">${numberedLiturgicalTextHtml(renderedPageText)}</span>`
         : "")
@@ -1261,11 +1270,16 @@ function timedOfficeFocusHtml(section, key) {
     ? `<span class="noonday-response">${escapeHtml(section.response)}</span>`
     : "";
   const header = heading ? `${heading}${subtitle}${citation}` : `${citation}${subtitle}`;
+  const chapterContinuation = isScriptureCitation && section.chapterHeadings && isContinuation
+    ? (section.pageHeadings?.[section.page] || section.citation)
+    : null;
   const pageLabel = isGloriaPage
     ? "Gloria"
-    : (isScriptureCitation && isContinuation && section.citation)
-      ? `${normalizedCitation(section.citation)}${pageIndex}`
-      : `${section.label}${pageIndex}`;
+    : chapterContinuation
+      ? `${chapterContinuation}${pageIndex}`
+      : (isScriptureCitation && isContinuation && section.citation)
+        ? `${normalizedCitation(section.citation)}${pageIndex}`
+        : `${section.label}${pageIndex}`;
   return `<button class="reading focus prayer-focus noonday-focus" data-reading="${key}" type="button"><span class="label">${escapeHtml(pageLabel)}</span>${header}${scriptureHeading}${content}${scriptureFootnote}${response}</button>`;
 }
 
