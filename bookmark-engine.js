@@ -1,8 +1,8 @@
-import { wikipediaUrlForFeast } from "./feast-wikipedia.js?v=staging-4680dfbcef503ca6bbf9ec13591aa92c502d9f2b";
+import { wikipediaUrlForFeast } from "./feast-wikipedia.js?v=staging-bd232a0f52e89838c6a5d61dc70f28a5611bc5ce";
 import {
   adaptLegacyTimedOffice,
   officeDocumentToViewSections,
-} from "./office-document.js?v=staging-4680dfbcef503ca6bbf9ec13591aa92c502d9f2b";
+} from "./office-document.js?v=staging-bd232a0f52e89838c6a5d61dc70f28a5611bc5ce";
 
 export function parseBundle(text) {
   const readings = new Map();
@@ -1054,12 +1054,15 @@ export function prayerLineationHtml(text) {
 export function numberedLiturgicalTextHtml(text) {
   const verses = String(text || "").trim().split(/\n{2,}/).filter(Boolean);
   return `<span class="noonday-psalm-verses">${verses.map(verse => {
-    const heading = verse.match(/^Psalm\s+([\d:–—-]+)(?:\s+·\s+(.+))?$/);
+    // Scripture / psalm chapter headings: "Psalm 19", "Hebrews 11", "1 Corinthians 13", optional · subtitle
+    const heading = verse.match(
+      /^((?:[1-3]\s+)?[A-Za-z][A-Za-z']*(?:\s+[A-Za-z][A-Za-z']*)*)\s+(\d+)(?:\s+·\s+(.+))?$/,
+    );
     if (heading) {
-      const subtitle = heading[2]
-        ? `<span class="timed-office-psalm-subtitle">${escapeHtml(heading[2])}</span>`
+      const subtitle = heading[3]
+        ? `<span class="timed-office-psalm-subtitle">${escapeHtml(heading[3])}</span>`
         : "";
-      return `<span class="timed-office-psalm-heading"><span>Psalm ${escapeHtml(heading[1])}</span>${subtitle}</span>`;
+      return `<span class="timed-office-psalm-heading"><span>${escapeHtml(`${heading[1]} ${heading[2]}`)}</span>${subtitle}</span>`;
     }
     const match = numberedVerseParts(verse);
     const number = match?.[1] || "";
@@ -1216,7 +1219,7 @@ function timedOfficeFocusHtml(section, key) {
   const hasNumberedVerses = usesNumberedVerseLayout(section, key);
   const isScriptureCitation = isScriptureLesson(key, section);
   const isContinuation = section.page > 0;
-  const citation = section.citation && !key.endsWith("_PSALMS") && !isContinuation
+  const citation = section.citation && !key.endsWith("_PSALMS") && !section.chapterHeadings && !isContinuation
     ? `<span class="focus-cite${isPsalm ? " noonday-psalm-cite" : section.heading ? " timed-office-section-cite" : ""}">${escapeHtml(normalizedCitation(section.citation))}</span>`
     : "";
   const heading = section.heading && !isContinuation

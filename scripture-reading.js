@@ -1,5 +1,5 @@
-import { editionForMode } from "./scripture-preference.js?v=staging-4680dfbcef503ca6bbf9ec13591aa92c502d9f2b";
-import { resolveCitation, unavailableNote } from "./scripture-resolve.js?v=staging-4680dfbcef503ca6bbf9ec13591aa92c502d9f2b";
+import { editionForMode } from "./scripture-preference.js?v=staging-bd232a0f52e89838c6a5d61dc70f28a5611bc5ce";
+import { resolveCitation, unavailableNote } from "./scripture-resolve.js?v=staging-bd232a0f52e89838c6a5d61dc70f28a5611bc5ce";
 
 /** Unicode ellipsis used in split-verse markers (7… / …7 / …7…). */
 export const VERSE_ELLIPSIS = "\u2026";
@@ -29,27 +29,81 @@ export function versesToPageText(verses) {
     .join("\n\n");
 }
 
+/** Display titles for USFX / OSIS book ids used in scripture packs. */
+const BOOK_LABELS = Object.freeze({
+  GEN: "Genesis", EXO: "Exodus", LEV: "Leviticus", NUM: "Numbers", DEU: "Deuteronomy",
+  JOS: "Joshua", JDG: "Judges", RUT: "Ruth", "1SA": "1 Samuel", "2SA": "2 Samuel",
+  "1KI": "1 Kings", "2KI": "2 Kings", "1CH": "1 Chronicles", "2CH": "2 Chronicles",
+  EZR: "Ezra", NEH: "Nehemiah", EST: "Esther", JOB: "Job", PSA: "Psalm", PRO: "Proverbs",
+  ECC: "Ecclesiastes", SNG: "Song of Solomon", ISA: "Isaiah", JER: "Jeremiah", LAM: "Lamentations",
+  EZK: "Ezekiel", DAN: "Daniel", HOS: "Hosea", JOL: "Joel", AMO: "Amos", OBA: "Obadiah",
+  JON: "Jonah", MIC: "Micah", NAM: "Nahum", HAB: "Habakkuk", ZEP: "Zephaniah", HAG: "Haggai",
+  ZEC: "Zechariah", MAL: "Malachi", MAT: "Matthew", MRK: "Mark", LUK: "Luke", JHN: "John",
+  ACT: "Acts", ROM: "Romans", "1CO": "1 Corinthians", "2CO": "2 Corinthians", GAL: "Galatians",
+  EPH: "Ephesians", PHP: "Philippians", COL: "Colossians", "1TH": "1 Thessalonians",
+  "2TH": "2 Thessalonians", "1TI": "1 Timothy", "2TI": "2 Timothy", TIT: "Titus", PHM: "Philemon",
+  HEB: "Hebrews", JAS: "James", "1PE": "1 Peter", "2PE": "2 Peter", "1JN": "1 John",
+  "2JN": "2 John", "3JN": "3 John", JUD: "Jude", REV: "Revelation",
+  WIS: "Wisdom", SIR: "Ecclesiasticus", BAR: "Baruch", TOB: "Tobit", JDT: "Judith",
+  "1MA": "1 Maccabees", "2MA": "2 Maccabees", "1ES": "1 Esdras", "2ES": "2 Esdras", DAG: "Song of the Three",
+});
+
+export function chapterHeadingLabel(bookId, chapter) {
+  const label = BOOK_LABELS[bookId] || String(bookId || "").trim() || "Chapter";
+  return `${label} ${chapter}`;
+}
+
+function distinctChapterKeys(verses) {
+  const keys = new Set();
+  for (const verse of verses || []) {
+    if (verse?.kind === "heading") continue;
+    const chapter = Number(verse?.chapter);
+    if (!verse?.bookId || !Number.isFinite(chapter)) continue;
+    keys.add(`${verse.bookId}:${chapter}`);
+  }
+  return keys;
+}
+
 /**
- * Insert a "Psalm N" heading before each discrete chapter in a verse list.
- * Used for Simple PS so appointed psalms read sequentially with their own titles.
+ * Insert a book+chapter heading before each discrete chapter in a verse list.
+ * e.g. Psalm 19, Hebrews 11, Hebrews 12.
  */
-export function withPsalmChapterHeadings(verses) {
+export function withChapterHeadings(verses) {
   const out = [];
-  let lastChapter = null;
+  let lastKey = null;
   for (const verse of verses || []) {
     if (verse?.kind === "heading") {
       out.push(verse);
-      lastChapter = null;
+      lastKey = null;
       continue;
     }
     const chapter = Number(verse?.chapter);
-    if (Number.isFinite(chapter) && chapter !== lastChapter) {
-      out.push({ kind: "heading", text: `Psalm ${chapter}` });
-      lastChapter = chapter;
+    const bookId = verse?.bookId;
+    if (bookId && Number.isFinite(chapter)) {
+      const key = `${bookId}:${chapter}`;
+      if (key !== lastKey) {
+        out.push({ kind: "heading", text: chapterHeadingLabel(bookId, chapter) });
+        lastKey = key;
+      }
     }
     out.push(verse);
   }
   return out;
+}
+
+/** @deprecated Use withChapterHeadings */
+export const withPsalmChapterHeadings = withChapterHeadings;
+
+/**
+ * Psalms always get per-chapter headings; other lessons only when they span chapters.
+ */
+export function decorateScriptureVerses(verses) {
+  if (!verses?.length) return { verses: verses || [], chapterHeadings: false };
+  const keys = distinctChapterKeys(verses);
+  if (keys.size === 0) return { verses, chapterHeadings: false };
+  const psalmOnly = [...keys].every(key => key.startsWith("PSA:"));
+  if (!psalmOnly && keys.size <= 1) return { verses, chapterHeadings: false };
+  return { verses: withChapterHeadings(verses), chapterHeadings: true };
 }
 
 /**
@@ -216,11 +270,13 @@ export function scriptureLessonPages({
       unavailable: true,
     };
   }
+  const decorated = decorateScriptureVerses(resolved.verses);
   return {
-    pages: [versesToPageText(resolved.verses)],
-    verses: resolved.verses,
+    pages: [versesToPageText(decorated.verses)],
+    verses: decorated.verses,
     citation: resolved.citation,
     unavailable: false,
+    chapterHeadings: decorated.chapterHeadings,
   };
 }
 
@@ -250,19 +306,7 @@ export function applyScriptureToSimpleView(view, {
       scriptureMode,
       pack,
     });
-    if (built) {
-      if (!built.unavailable && built.verses?.length) {
-        const verses = withPsalmChapterHeadings(built.verses);
-        scripturePages.PS = {
-          ...built,
-          verses,
-          pages: [versesToPageText(verses)],
-          chapterHeadings: true,
-        };
-      } else {
-        scripturePages.PS = built;
-      }
-    }
+    if (built) scripturePages.PS = built;
   }
   return { ...view, scripturePages };
 }
@@ -288,6 +332,7 @@ export function applyScriptureToTimedOffice(office, {
       scriptureUnavailable: built.unavailable,
       numberedVerses: !built.unavailable,
       preservePages: built.unavailable,
+      chapterHeadings: Boolean(built.chapterHeadings),
     };
   }
   return { ...office, sections };

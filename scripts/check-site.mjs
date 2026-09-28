@@ -272,8 +272,10 @@ const {
   formatVerseMarker,
   paginateScriptureVersesByFit,
   psalmTokensToCitation,
+  scriptureLessonPages,
   VERSE_ELLIPSIS,
   versesToPageText,
+  withChapterHeadings,
   withPsalmChapterHeadings,
 } = await import("../scripture-reading.js");
 const { initializeScripturePreference, setScriptureMode } = await import("../scripture-preference.js");
@@ -959,13 +961,33 @@ await checkAsync("scripture preference remaps Simple and Traditional lesson focu
     && eveningPage.indexOf("Psalm 19") < eveningPage.indexOf("Psalm 46"),
     "evening WEB Psalms sequence chapter headings in body",
   );
-  const headed = withPsalmChapterHeadings([
-    { chapter: 19, verse: 1, text: "a" },
-    { chapter: 19, verse: 2, text: "b" },
-    { chapter: 46, verse: 1, text: "c" },
+  const headed = withChapterHeadings([
+    { bookId: "PSA", chapter: 19, verse: 1, text: "a" },
+    { bookId: "PSA", chapter: 19, verse: 2, text: "b" },
+    { bookId: "PSA", chapter: 46, verse: 1, text: "c" },
   ]);
   assert(headed[0]?.kind === "heading" && headed[0].text === "Psalm 19", "heading before first chapter");
   assert(headed[3]?.kind === "heading" && headed[3].text === "Psalm 46", "heading before next chapter");
+  const multiLesson = scriptureLessonPages({
+    citation: "Hebrews 11:32--12:2",
+    scriptureMode: "web",
+    pack: web,
+  });
+  assert(multiLesson.chapterHeadings, "multi-chapter lessons get chapter headings");
+  assert(
+    multiLesson.verses.some(verse => verse.kind === "heading" && verse.text === "Hebrews 11")
+    && multiLesson.verses.some(verse => verse.kind === "heading" && verse.text === "Hebrews 12"),
+    "multi-chapter lesson sequences Hebrews 11 then Hebrews 12",
+  );
+  const multiLessonHtml = numberedLiturgicalTextHtml(multiLesson.pages[0]);
+  assert(multiLessonHtml.includes("Hebrews 11") && multiLessonHtml.includes("Hebrews 12"), "lesson chapter headings render");
+  const singleLesson = scriptureLessonPages({
+    citation: "Hosea 1:1-9",
+    scriptureMode: "web",
+    pack: web,
+  });
+  assert(!singleLesson.chapterHeadings, "single-chapter lessons keep citation chrome");
+  assert(singleLesson.verses[0]?.kind !== "heading", "single-chapter lessons do not insert body headings");
   const offPsalmHtml = screenHtml(psalmFocus);
   assert(!offPsalmHtml.includes("scripture-lesson-text"), "Off Psalm focus stays citation-only");
   assert(
