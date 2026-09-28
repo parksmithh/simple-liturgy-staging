@@ -35,11 +35,11 @@
   <meta name="twitter:image" content="https://simpleliturgy.com/assets/og-simple-liturgy.png?v=3">
   <meta name="twitter:image:alt" content="Simplified Simple Liturgy reader showing Psalms, Old Testament, New Testament, and Gospel citations">
   <title>Simple Liturgy | BCP 1979 Daily Office Reader</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=staging-c678285311301b7f0e39edcf902fea341355e8e4">
-  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=staging-c678285311301b7f0e39edcf902fea341355e8e4">
-  <link rel="icon" href="./icon.svg?v=staging-c678285311301b7f0e39edcf902fea341355e8e4" type="image/svg+xml">
-  <link rel="stylesheet" href="./design-tokens.css?v=staging-c678285311301b7f0e39edcf902fea341355e8e4">
-  <link rel="stylesheet" href="./app.css?v=staging-c678285311301b7f0e39edcf902fea341355e8e4">
+  <link rel="manifest" href="./manifest.webmanifest?v=staging-a92bf2d98356d073379549b88c779405630fc13c">
+  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=staging-a92bf2d98356d073379549b88c779405630fc13c">
+  <link rel="icon" href="./icon.svg?v=staging-a92bf2d98356d073379549b88c779405630fc13c" type="image/svg+xml">
+  <link rel="stylesheet" href="./design-tokens.css?v=staging-a92bf2d98356d073379549b88c779405630fc13c">
+  <link rel="stylesheet" href="./app.css?v=staging-a92bf2d98356d073379549b88c779405630fc13c">
 </head>
 <body>
   <div class="ios-pwa-status-strip" aria-hidden="true"></div>
@@ -95,33 +95,29 @@
 
     <section class="settings-card appearance-settings" aria-labelledby="appearance-title">
       <p class="eyebrow">Preferences</p>
-      <div class="settings-heading">
-        <h2 id="appearance-title">Appearance</h2>
-        <button class="icon-button settings-help-trigger" type="button" data-settings-help="help-appearance" data-settings-help-title="Appearance" aria-label="About Appearance">?</button>
-      </div>
-      <p class="settings-help-summary">System follows your device appearance automatically.</p>
+      <h2 id="appearance-title">Appearance</h2>
       <fieldset class="settings-options theme-options">
         <legend>Color theme</legend>
         <label><input type="radio" name="theme" value="light"> <span>Light</span></label>
         <label><input type="radio" name="theme" value="dark"> <span>Dark</span></label>
         <label><input type="radio" name="theme" value="system" checked> <span>System</span></label>
       </fieldset>
+      <p class="settings-note">System follows your device appearance automatically.</p>
     </section>
 
     <section class="settings-card timed-office-settings" aria-labelledby="liturgies-settings-title">
       <p class="eyebrow" id="liturgies-settings-title">Liturgies</p>
       <div class="timed-office-options">
         <div class="timed-office-option prayer-format-settings" aria-labelledby="prayer-format-title">
-          <div class="settings-heading">
-            <h2 id="prayer-format-title">Morning and Evening Prayer</h2>
-            <button class="icon-button settings-help-trigger" type="button" data-settings-help="help-prayer-format" data-settings-help-title="Morning and Evening Prayer" aria-label="About Morning and Evening Prayer">?</button>
-          </div>
-          <p class="settings-help-summary">Choose one format for both offices. Noonday and Compline stay separate.</p>
+          <h2 id="prayer-format-title">Morning and Evening Prayer</h2>
+          <p class="settings-note">Choose one format for both offices. Noonday and Compline remain separate below.</p>
           <fieldset class="settings-options prayer-format-options">
             <legend>Morning and Evening Prayer format</legend>
             <label><input type="radio" name="prayer-format" value="simple" checked> <span>Simple</span></label>
             <label><input type="radio" name="prayer-format" value="full"> <span>Traditional</span></label>
           </fieldset>
+          <p class="settings-note">Simple keeps the concise prayer-and-readings backbone.</p>
+          <p class="settings-note">Traditional follows the complete Rite II office automatically, including an offline copy when it is ready.</p>
           <p class="settings-note" id="prayer-format-status" aria-live="polite" hidden></p>
           <div class="prayer-format-previews" aria-label="Preview Simple and Traditional Morning and Evening Prayer">
             <div class="prayer-format-preview-group" role="group" aria-label="Preview Simple Morning and Evening Prayer">
@@ -138,43 +134,57 @@
           <button class="settings-action" id="retry-full-office" type="button" hidden>Retry Traditional Office</button>
         </div>
         <div class="timed-office-option">
-          <div class="settings-heading">
-            <label class="settings-switch" for="noonday-enabled">
-              <span class="settings-switch-copy">
-                <strong>Use Noonday Prayer</strong>
-                <span>Automatically show it from 10:00 a.m. to 2:00 p.m. in your device’s local time.</span>
-              </span>
-              <input id="noonday-enabled" type="checkbox" role="switch">
-            </label>
-            <button class="icon-button settings-help-trigger" type="button" data-settings-help="help-noonday" data-settings-help-title="Noonday Prayer" aria-label="About Noonday Prayer">?</button>
-          </div>
-          <p class="settings-help-summary">Follows the BCP 1979 Order of Service for Noonday.</p>
+          <label class="settings-switch" for="noonday-enabled">
+            <span class="settings-switch-copy">
+              <strong>Use Noonday Prayer</strong>
+              <span>Automatically show it from 10:00 a.m. to 2:00 p.m. in your device’s local time.</span>
+            </span>
+            <input id="noonday-enabled" type="checkbox" role="switch">
+          </label>
+          <p class="settings-note">Follows the <a href="https://www.bcponline.org/DailyOffice/noonday.html" target="_blank" rel="noopener noreferrer">BCP 1979 Order of Service for Noonday</a>.</p>
           <button class="settings-action" id="preview-noonday" type="button">Preview</button>
         </div>
         <div class="timed-office-option">
-          <div class="settings-heading">
-            <label class="settings-switch" for="compline-enabled">
-              <span class="settings-switch-copy">
-                <strong>Use Compline</strong>
-                <span>Automatically show it from 9:00 p.m. to 4:00 a.m. in your device’s local time.</span>
-              </span>
-              <input id="compline-enabled" type="checkbox" role="switch">
-            </label>
-            <button class="icon-button settings-help-trigger" type="button" data-settings-help="help-compline" data-settings-help-title="Compline" aria-label="About Compline">?</button>
-          </div>
-          <p class="settings-help-summary">Follows the BCP 1979 Order for Compline.</p>
+          <label class="settings-switch" for="compline-enabled">
+            <span class="settings-switch-copy">
+              <strong>Use Compline</strong>
+              <span>Automatically show it from 9:00 p.m. to 4:00 a.m. in your device’s local time.</span>
+            </span>
+            <input id="compline-enabled" type="checkbox" role="switch">
+          </label>
+          <p class="settings-note">Follows the <a href="https://www.bcponline.org/DailyOffice/compline.html" target="_blank" rel="noopener noreferrer">BCP 1979 Order for Compline</a>.</p>
           <button class="settings-action" id="preview-compline" type="button">Preview</button>
         </div>
       </div>
     </section>
 
+    <section class="settings-card scripture-settings" id="scripture-settings" aria-labelledby="scripture-settings-title">
+      <p class="eyebrow">Reader</p>
+      <h2 id="scripture-settings-title">Scripture text</h2>
+      <fieldset class="settings-options scripture-options">
+        <legend>Scripture translation</legend>
+        <label><input type="radio" name="scripture-mode" value="off" checked> <span>Off</span></label>
+        <label><input type="radio" name="scripture-mode" value="web"> <span>Simple (WEB)</span></label>
+        <label><input type="radio" name="scripture-mode" value="kjv"> <span>Traditional (KJV)</span></label>
+      </fieldset>
+      <p class="settings-note">Applies to Morning and Evening appointed Psalms and lessons in both Simple and Traditional Prayer. Off keeps the citation only. WEB and KJV stay available offline after install. When Scripture is on, Simple Psalms always follow morning/evening by time of day (not together). Pages auto-fit the screen; tap the edges to turn pages.</p>
+    </section>
+
+    <section class="settings-card psalm-settings" aria-labelledby="psalm-settings-title">
+      <p class="eyebrow">Reader</p>
+      <h2 id="psalm-settings-title">Simple Liturgy Psalms</h2>
+      <fieldset class="settings-options psalm-options">
+        <legend>Psalm display</legend>
+        <label><input type="radio" name="psalm-display" value="together" checked> <span>Together</span></label>
+        <label><input type="radio" name="psalm-display" value="by-time-of-day"> <span>By time of day</span></label>
+      </fieldset>
+      <p class="settings-note">This setting applies to Simple format when Scripture text is Off. Midnight to noon shows Morning Psalms; noon to midnight shows Evening Psalms. When WEB or KJV is selected, Psalms always use by time of day.</p>
+    </section>
+
     <section class="settings-card prayer-schedule-settings" aria-labelledby="prayer-schedule-title">
       <p class="eyebrow">Rule of life</p>
-      <div class="settings-heading">
-        <h2 id="prayer-schedule-title">Prayer reminders</h2>
-        <button class="icon-button settings-help-trigger" type="button" data-settings-help="help-reminders" data-settings-help-title="Prayer reminders" aria-label="About Prayer reminders">?</button>
-      </div>
-      <p class="settings-help-summary">Choose a local time for each office. Timed offices appear when that office is enabled.</p>
+      <h2 id="prayer-schedule-title">Prayer reminders</h2>
+      <p>Choose a local time for each office. Timed-office schedules appear when their reader office is enabled.</p>
       <div class="prayer-time-groups">
         <div class="prayer-time-row" data-prayer-reminder-row="morning">
           <label for="prayer-reminder-morning">Morning Prayer</label>
@@ -215,38 +225,10 @@
           </select>
         </div>
       </div>
+      <p class="settings-note">Calendar owns these recurring events. Change or delete them there before importing a replacement. Importing another file can create duplicates.</p>
       <button class="settings-action" id="create-prayer-reminders" type="button">Create calendar reminders</button>
       <p class="settings-note" id="prayer-reminder-status" aria-live="polite">Your calendar may ask you to import the file separately.</p>
       <p class="settings-note" id="prayer-import-help" hidden>Open the downloaded file with a compatible calendar. Google Calendar imports saved files from <a href="https://support.google.com/calendar/answer/37118" target="_blank" rel="noopener noreferrer">calendar.google.com on a computer</a>.</p>
-    </section>
-
-    <section class="settings-card scripture-settings" id="scripture-settings" aria-labelledby="scripture-settings-title">
-      <p class="eyebrow">Reader</p>
-      <div class="settings-heading">
-        <h2 id="scripture-settings-title">Scripture text</h2>
-        <button class="icon-button settings-help-trigger" type="button" data-settings-help="help-scripture" data-settings-help-title="Scripture text" aria-label="About Scripture text">?</button>
-      </div>
-      <p class="settings-help-summary">Applies to Morning and Evening Psalms and lessons. Off keeps the citation only.</p>
-      <fieldset class="settings-options scripture-options">
-        <legend>Scripture translation</legend>
-        <label><input type="radio" name="scripture-mode" value="off" checked> <span>Off</span></label>
-        <label><input type="radio" name="scripture-mode" value="web"> <span>Simple (WEB)</span></label>
-        <label><input type="radio" name="scripture-mode" value="kjv"> <span>Traditional (KJV)</span></label>
-      </fieldset>
-    </section>
-
-    <section class="settings-card psalm-settings" aria-labelledby="psalm-settings-title">
-      <p class="eyebrow">Reader</p>
-      <div class="settings-heading">
-        <h2 id="psalm-settings-title">Simple Liturgy Psalms</h2>
-        <button class="icon-button settings-help-trigger" type="button" data-settings-help="help-psalms" data-settings-help-title="Simple Liturgy Psalms" aria-label="About Simple Liturgy Psalms">?</button>
-      </div>
-      <p class="settings-help-summary">This setting applies to Simple format when Scripture text is Off.</p>
-      <fieldset class="settings-options psalm-options">
-        <legend>Psalm display</legend>
-        <label><input type="radio" name="psalm-display" value="together" checked> <span>Together</span></label>
-        <label><input type="radio" name="psalm-display" value="by-time-of-day"> <span>By time of day</span></label>
-      </fieldset>
     </section>
 
     <section class="settings-card feast-links-settings" aria-labelledby="feast-links-title">
@@ -398,40 +380,6 @@
     </div>
   </section>
 
-  <template id="help-appearance">
-    <p>System follows your device appearance automatically.</p>
-  </template>
-  <template id="help-prayer-format">
-    <p>Choose one format for both offices. Noonday and Compline remain separate below.</p>
-    <p>Simple keeps the concise prayer-and-readings backbone.</p>
-    <p>Traditional follows the complete Rite II office automatically, including an offline copy when it is ready.</p>
-  </template>
-  <template id="help-noonday">
-    <p>Follows the <a href="https://www.bcponline.org/DailyOffice/noonday.html" target="_blank" rel="noopener noreferrer">BCP 1979 Order of Service for Noonday</a>.</p>
-  </template>
-  <template id="help-compline">
-    <p>Follows the <a href="https://www.bcponline.org/DailyOffice/compline.html" target="_blank" rel="noopener noreferrer">BCP 1979 Order for Compline</a>.</p>
-  </template>
-  <template id="help-reminders">
-    <p>Calendar owns these recurring events. Change or delete them there before importing a replacement. Importing another file can create duplicates.</p>
-  </template>
-  <template id="help-scripture">
-    <p>Applies to Morning and Evening appointed Psalms and lessons in both Simple and Traditional Prayer. Off keeps the citation only. WEB and KJV stay available offline after install. When Scripture is on, Simple Psalms always follow morning/evening by time of day (not together). Pages auto-fit the screen; tap the edges to turn pages.</p>
-  </template>
-  <template id="help-psalms">
-    <p>This setting applies to Simple format when Scripture text is Off. Midnight to noon shows Morning Psalms; noon to midnight shows Evening Psalms. When WEB or KJV is selected, Psalms always use by time of day.</p>
-  </template>
-
-  <dialog class="help-tray" id="settings-help-tray" aria-labelledby="settings-help-title">
-    <form method="dialog" class="help-tray-form">
-      <header class="help-tray-bar">
-        <button class="icon-button" id="settings-help-close" value="close" type="submit" aria-label="Close">×</button>
-      </header>
-      <h2 id="settings-help-title"></h2>
-      <div class="help-tray-body" id="settings-help-body"></div>
-    </form>
-  </dialog>
-
   <dialog class="onboarding-sheet" id="timed-office-onboarding" aria-labelledby="timed-office-onboarding-title" aria-describedby="timed-office-onboarding-description">
     <form method="dialog">
       <h2 id="timed-office-onboarding-title"></h2>
@@ -456,6 +404,6 @@
     </form>
   </dialog>
 
-  <script type="module" src="./app.js?v=staging-c678285311301b7f0e39edcf902fea341355e8e4"></script>
+  <script type="module" src="./app.js?v=staging-a92bf2d98356d073379549b88c779405630fc13c"></script>
 </body>
 </html>

@@ -26,9 +26,6 @@ const REQUIRED_HTML_IDS = [
   "settings-page",
   "device-screen",
   "prayer-format-status",
-  "settings-help-tray",
-  "settings-help-title",
-  "settings-help-close",
   "preview-simple-morning",
   "preview-simple-evening",
   "preview-traditional-morning",
@@ -847,42 +844,44 @@ await checkAsync("settings option buttons share one selected token recipe", asyn
   assert(initializePrayerFormatPreference({ controls, storage }) === "full", "Traditional restores");
 });
 
-await checkAsync("settings help text lives in a full-screen tray", async () => {
+await checkAsync("settings help stays on the page without tooltip trays", async () => {
   const css = await readText("app.css");
-  const pageWithoutTemplates = indexHtml.replace(/<template[\s\S]*?<\/template>/g, "");
-  assert(indexHtml.includes('id="settings-help-tray"'), "help tray dialog exists");
-  assert(indexHtml.includes('class="help-tray"'), "help tray uses the tray component");
-  assert(indexHtml.includes('id="settings-help-close"'), "tray has a close control");
-  assert(indexHtml.includes("settings-help-trigger"), "section headings expose help triggers");
-  assert(css.includes(".help-tray {"), "help tray styles exist");
-  assert(/\.help-tray \{[^}]*height:\s*100%/.test(css.replaceAll("\n", " ")), "help tray is full screen");
-  assert(css.includes(".settings-help-summary"), "inline help summary style exists");
-  assert(css.includes("-webkit-line-clamp: 2"), "inline help stays at two lines");
-  assert((pageWithoutTemplates.match(/class="settings-help-summary"/g) || []).length >= 7, "each helped section shows a short summary");
-  for (const [id, copy] of [
-    ["help-appearance", "System follows your device appearance automatically."],
-    ["help-prayer-format", "Choose one format for both offices."],
-    ["help-noonday", "Order of Service for Noonday"],
-    ["help-compline", "Order for Compline"],
-    ["help-reminders", "Importing another file can create duplicates."],
-    ["help-scripture", "Pages auto-fit the screen"],
-    ["help-psalms", "This setting applies to Simple format when Scripture text is Off."],
-  ]) {
-    assert(indexHtml.includes(`id="${id}"`), `missing #${id} help template`);
-    assert(indexHtml.includes(copy), `help copy missing: ${copy}`);
-  }
-  for (const extra of [
+  assert(!indexHtml.includes('id="settings-help-tray"'), "help tray is gone");
+  assert(!indexHtml.includes("settings-help-trigger"), "help triggers are gone");
+  assert(!indexHtml.includes("settings-help-summary"), "clamped summaries are gone");
+  assert(!indexHtml.includes('class="help-tray"'), "help tray markup is gone");
+  assert(!indexHtml.includes('id="help-appearance"'), "help templates are gone");
+  assert(!css.includes(".help-tray {"), "help tray styles are gone");
+  assert(!css.includes(".settings-help-summary"), "summary clamp styles are gone");
+  assert(!css.includes(".settings-heading {"), "tooltip heading layout is gone");
+  for (const copy of [
+    "System follows your device appearance automatically.",
+    "Choose one format for both offices. Noonday and Compline remain separate below.",
+    "Simple keeps the concise prayer-and-readings backbone.",
     "Traditional follows the complete Rite II office automatically",
-    "Change or delete them there before importing a replacement",
+    "Order of Service for Noonday",
+    "Order for Compline",
+    "Choose a local time for each office.",
+    "Importing another file can create duplicates.",
     "Pages auto-fit the screen",
+    "This setting applies to Simple format when Scripture text is Off.",
     "Midnight to noon shows Morning Psalms",
   ]) {
-    assert(!pageWithoutTemplates.includes(extra), `longer help stays in the tray: ${extra}`);
+    assert(indexHtml.includes(copy), `help copy missing: ${copy}`);
   }
-  assert(pageWithoutTemplates.includes("System follows your device appearance automatically."), "appearance keeps a two-line summary");
-  assert(pageWithoutTemplates.includes("Choose one format for both offices. Noonday and Compline stay separate."), "prayer format keeps a two-line summary");
-  assert(pageWithoutTemplates.includes('id="prayer-format-status"'), "live prayer-format status stays on the page");
-  assert(pageWithoutTemplates.includes('id="prayer-reminder-status"'), "live reminder status stays on the page");
+  assert(indexHtml.includes('id="prayer-format-status"'), "live prayer-format status stays on the page");
+  assert(indexHtml.includes('id="prayer-reminder-status"'), "live reminder status stays on the page");
+});
+
+check("prayer reminders sit below scripture and psalms", () => {
+  const scripture = indexHtml.indexOf('class="settings-card scripture-settings"');
+  const psalms = indexHtml.indexOf('class="settings-card psalm-settings"');
+  const reminders = indexHtml.indexOf('class="settings-card prayer-schedule-settings"');
+  const feast = indexHtml.indexOf('class="settings-card feast-links-settings"');
+  assert(scripture !== -1 && psalms !== -1 && reminders !== -1, "reader and reminder sections exist");
+  assert(scripture < psalms, "scripture precedes psalms");
+  assert(psalms < reminders, "psalms precede prayer reminders");
+  assert(reminders < feast, "reminders precede feast links");
 });
 
 check("product copy no longer claims Scripture is absent", () => {
