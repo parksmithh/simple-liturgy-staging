@@ -1,9 +1,9 @@
-import { wikipediaUrlForFeast } from "./feast-wikipedia.js?v=staging-a92bf2d98356d073379549b88c779405630fc13c";
+import { wikipediaUrlForFeast } from "./feast-wikipedia.js?v=staging-ace21f6cbd2ed40a35aef1ccb4d73e2bb58ba544";
 import {
   adaptLegacyTimedOffice,
   officeDocumentToViewSections,
-} from "./office-document.js?v=staging-a92bf2d98356d073379549b88c779405630fc13c";
-import { scripturePageBodyText } from "./scripture-reading.js?v=staging-a92bf2d98356d073379549b88c779405630fc13c";
+} from "./office-document.js?v=staging-ace21f6cbd2ed40a35aef1ccb4d73e2bb58ba544";
+import { scripturePageBodyText } from "./scripture-reading.js?v=staging-ace21f6cbd2ed40a35aef1ccb4d73e2bb58ba544";
 
 export function parseBundle(text) {
   const readings = new Map();
@@ -422,7 +422,7 @@ export function handle(state, event, context = {}) {
     next.focusPage = 0;
   }
   else if ((context.focusOrder || DAILY_FOCUS_ORDER).includes(event)) {
-    next.focus = next.focus === event ? null : event;
+    next.focus = context.focusOrder?.[0] || DAILY_FOCUS_ORDER[0];
     next.focusPage = 0;
   }
   else if (event === "TODAY") return createState();
@@ -1296,7 +1296,7 @@ function timedOfficeOverviewHtml(sections, service = "noonday") {
     const label = lesson ? READING_LABELS[scriptureKeyForNormalizedCitation(lessonCitation)] : section.label;
     const summaryText = fullOffice ? "" : lesson ? lessonCitation : section.summary;
     const summary = summaryText ? `<span class="cite">${escapeHtml(summaryText)}</span>` : "";
-    return `<button class="reading" data-reading="${key}" type="button"><span class="label">${escapeHtml(label)}</span>${summary}</button>`;
+    return `<button class="reading" data-reading="${key}" data-event="FOCUS" type="button"><span class="label">${escapeHtml(label)}</span>${summary}</button>`;
   }).join("")}</div>`;
 }
 
@@ -1376,11 +1376,11 @@ export function screenHtml(view, { feastLinksEnabled = true, psalmDisplayMode = 
   const lordsPrayerFocus = view.focus === "LORDS_PRAYER"
     ? `<button class="reading focus prayer-focus" data-reading="LORDS_PRAYER" type="button"><span class="label">${escapeHtml(LORDS_PRAYER_HEADING)}</span><span class="prayer-text lords-prayer-text">${prayerLineationHtml(LORDS_PRAYER_TEXT)}</span></button>`
     : null;
-  const openingPrayerOverview = '<button class="reading overview-marker opening-prayer-marker" data-event="PRAYER" type="button"><span class="label">Opening Prayer</span></button>';
-  const lordsPrayerOverview = `<button class="reading overview-marker lords-prayer-marker" data-event="LORDS_PRAYER" type="button"><span class="label">${escapeHtml(LORDS_PRAYER_HEADING)}</span></button>`;
-  const gloriaOverview = '<button class="reading overview-marker gloria-marker" data-event="GLORIA" type="button"><span class="label">Gloria</span></button>';
+  const openingPrayerOverview = '<button class="reading overview-marker opening-prayer-marker" data-event="FOCUS" type="button"><span class="label">Opening Prayer</span></button>';
+  const lordsPrayerOverview = `<button class="reading overview-marker lords-prayer-marker" data-event="FOCUS" type="button"><span class="label">${escapeHtml(LORDS_PRAYER_HEADING)}</span></button>`;
+  const gloriaOverview = '<button class="reading overview-marker gloria-marker" data-event="FOCUS" type="button"><span class="label">Gloria</span></button>';
   const body = view.focus
     ? prayerFocus || lordsPrayerFocus || gloriaFocus || `<button class="reading focus" data-reading="${view.focus}" type="button">${readingContentHtml(view, view.focus, "focus-cite", psalmPresentation)}</button>`
-    : `<div class="grid">${openingPrayerOverview}${Object.keys(view.values).map(key => `<button class="reading" data-reading="${key}" type="button">${readingContentHtml(view, key, "cite", psalmPresentation)}</button>`).join("")}${lordsPrayerOverview}${gloriaOverview}</div>`;
+    : `<div class="grid">${openingPrayerOverview}${Object.keys(view.values).map(key => `<button class="reading" data-reading="${key}" data-event="FOCUS" type="button">${readingContentHtml(view, key, "cite", psalmPresentation)}</button>`).join("")}${lordsPrayerOverview}${gloriaOverview}</div>`;
   return `${screenLead}${body}${readerProgressHintHtml(view.focus)}`;
 }

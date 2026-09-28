@@ -140,6 +140,23 @@ function assert(condition, message) {
   if (!condition) throw new Error(message);
 }
 
+function overviewSectionButtons(html) {
+  return [...html.matchAll(/<button class="reading\b[^>]*>/g)].map(match => match[0]);
+}
+
+function assertOverviewStartsFocusAtBeginning(html, label) {
+  const buttons = overviewSectionButtons(html);
+  assert(buttons.length > 0, `${label} overview must render section buttons`);
+  for (const button of buttons) {
+    assert(
+      button.includes('data-event="FOCUS"'),
+      `${label} overview section must start focus at the beginning: ${button}`,
+    );
+    const event = button.match(/data-event="([^"]+)"/)?.[1];
+    assert(event === "FOCUS", `${label} overview section event is ${event}, expected FOCUS`);
+  }
+}
+
 function repoPath(...parts) {
   return join(ROOT, ...parts);
 }
@@ -714,7 +731,13 @@ check("Simple Liturgy focus order includes The Lord's Prayer", () => {
   const previousFromGloria = handle({ offset: 0, focus: "GLORIA", focusPage: 0 }, "PREV_READING");
   assert(previousFromGloria.focus === "LORDS_PRAYER", "previous from Gloria must open The Lord's Prayer");
   const opened = handle({ offset: 0, focus: null, focusPage: 0 }, "LORDS_PRAYER");
-  assert(opened.focus === "LORDS_PRAYER", "overview must focus The Lord's Prayer, not a reading");
+  assert(opened.focus === "PRAYER", "overview Lord's Prayer must start focus at the beginning");
+  assert(opened.focusPage === 0, "overview Lord's Prayer must start on the first page");
+  const gloria = handle({ offset: 0, focus: null, focusPage: 0 }, "GLORIA");
+  assert(gloria.focus === "PRAYER", "overview Gloria must start focus at the beginning");
+  assert(gloria.focusPage === 0, "overview Gloria must start on the first page");
+  const opening = handle({ offset: 0, focus: null, focusPage: 0 }, "PRAYER");
+  assert(opening.focus === "PRAYER", "overview Opening Prayer must start focus at the beginning");
   const afterOverview = handle({ offset: 0, focus: "LORDS_PRAYER", focusPage: 0 }, "OVERVIEW");
   assert(afterOverview.focus === null, "overview must clear Lord's Prayer focus");
   const afterDate = handle({ offset: 0, focus: "LORDS_PRAYER", focusPage: 0 }, "NEXT_DAY");
@@ -744,7 +767,10 @@ await checkAsync("Simple Liturgy Lord's Prayer renders in focus and overview", a
   const collects = parseCollects(await readText("data/collects/collects.json"));
   const today = localIsoDate();
   const overview = screenHtml(model(bundle, { offset: 0, focus: null, focusPage: 0 }, today, collects));
-  assert(overview.includes(`data-event="LORDS_PRAYER"`), "overview marker must open LORDS_PRAYER");
+  assert(overview.includes('data-event="FOCUS"'), "overview markers must start focus at the beginning");
+  assert(!overview.includes('data-event="LORDS_PRAYER"'), "overview must not jump to The Lord's Prayer");
+  assert(!overview.includes('data-event="GLORIA"'), "overview must not jump to Gloria");
+  assert(!overview.includes('data-event="PRAYER"'), "overview must not jump to Opening Prayer");
   assert(overview.includes(LORDS_PRAYER_HEADING), "overview must use the shared heading");
   assert(!overview.includes("Our Father in heaven"), "overview must be label-only");
   const focus = screenHtml(model(bundle, { offset: 0, focus: "LORDS_PRAYER", focusPage: 0 }, today, collects));
@@ -755,6 +781,49 @@ await checkAsync("Simple Liturgy Lord's Prayer renders in focus and overview", a
   const noonday = screenHtml(model(bundle, { offset: 0, focus: "NOONDAY_LORDS_PRAYER", focusPage: 0 }, today, collects, { service: "noonday" }));
   assert(noonday.includes(LORDS_PRAYER_HEADING), "Noonday must keep The Lord’s Prayer heading");
   assert(!noonday.includes("For the kingdom, the power, and the glory are yours"), "Noonday must keep the doxology-free wording");
+});
+
+await checkAsync("overview section taps start focus at the beginning in every office", async () => {
+  const bundle = parseBundle(await readText("firmware/circuitpython/readings.active.jsonl"));
+  const collects = parseCollects(await readText("data/collects/collects.json"));
+  const today = localIsoDate();
+  const riteTwo = JSON.parse(await readText("data/daily-office/rite-two.json"));
+  const psalter = JSON.parse(await readText("data/daily-office/psalter.json"));
+  const appointments = JSON.parse(await readText("dor-engine/office-appointments.json"));
+  const idle = { offset: 0, focus: null, focusPage: 0 };
+
+  const simple = model(bundle, idle, today, collects);
+  assertOverviewStartsFocusAtBeginning(screenHtml(simple), "Simple Prayer");
+  assert(simple.focusOrder[0] === "PRAYER", "Simple Prayer begins at Opening Prayer");
+
+  for (const service of ["morning", "evening"]) {
+    const document = composeDailyOffice({
+      service,
+      date: today,
+      day: bundle.dates.get(today),
+      collect: resolvePrayer(collects, bundle.dates.get(today)),
+      riteTwo,
+      psalter,
+      appointments,
+    });
+    const view = model(bundle, idle, today, collects, { service, officeDocument: document });
+    assert(!view.error, `${service}: ${view.error}`);
+    assertOverviewStartsFocusAtBeginning(screenHtml(view), service);
+    const laterSection = view.focusOrder.find(key => key !== view.focusOrder[0]);
+    const started = handle(idle, laterSection, { focusOrder: view.focusOrder });
+    assert(started.focus === view.focusOrder[0], `${service} section tap must start at ${view.focusOrder[0]}`);
+    assert(started.focusPage === 0, `${service} section tap must start on page 0`);
+  }
+
+  for (const service of ["noonday", "compline"]) {
+    const view = model(bundle, idle, today, collects, { service });
+    assert(!view.error, `${service}: ${view.error}`);
+    assertOverviewStartsFocusAtBeginning(screenHtml(view), service);
+    const laterSection = view.focusOrder.find(key => key !== view.focusOrder[0]);
+    const started = handle(idle, laterSection, { focusOrder: view.focusOrder });
+    assert(started.focus === view.focusOrder[0], `${service} section tap must start at ${view.focusOrder[0]}`);
+    assert(started.focusPage === 0, `${service} section tap must start on page 0`);
+  }
 });
 
 await checkAsync("Lord's Prayer typography inherits the shared prayer token", async () => {
