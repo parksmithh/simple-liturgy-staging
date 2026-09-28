@@ -1,8 +1,8 @@
-import { wikipediaUrlForFeast } from "./feast-wikipedia.js?v=staging-f2c789ae9a0b40b30ef4dd2f2deee1ad7f1f1cfb";
+import { wikipediaUrlForFeast } from "./feast-wikipedia.js?v=staging-4680dfbcef503ca6bbf9ec13591aa92c502d9f2b";
 import {
   adaptLegacyTimedOffice,
   officeDocumentToViewSections,
-} from "./office-document.js?v=staging-f2c789ae9a0b40b30ef4dd2f2deee1ad7f1f1cfb";
+} from "./office-document.js?v=staging-4680dfbcef503ca6bbf9ec13591aa92c502d9f2b";
 
 export function parseBundle(text) {
   const readings = new Map();
@@ -1161,12 +1161,17 @@ function readingContentHtml(view, key, className, psalmPresentation) {
     const body = built.unavailable
       ? `<span class="prayer-text scripture-unavailable-note">${escapeHtml(built.pages[page] || "")}</span>`
       : `<span class="prayer-text noonday-text timed-office-numbered-verses scripture-lesson-text">${numberedLiturgicalTextHtml(built.pages[page] || "")}</span>`;
-    if (page > 0) {
-      return `<span class="label">${escapeHtml(citationText)}${pageIndex}</span>${body}`;
-    }
     const sectionLabel = key === "PS" && psalmPresentation.byTime
       ? `${PSALM_OFFICE_LABELS[psalmPresentation.office]} Psalms`
       : READING_LABELS[key];
+    // Psalm chapter headings live in the body; keep the office label on every page
+    // instead of a combined "Psalm 19; Psalm 46" focus-cite / continuation title.
+    if (built.chapterHeadings) {
+      return `<span class="label">${sectionLabel}${pageIndex}</span>${body}`;
+    }
+    if (page > 0) {
+      return `<span class="label">${escapeHtml(citationText)}${pageIndex}</span>${body}`;
+    }
     const citation = citationText
       ? `<span class="focus-cite">${escapeHtml(citationText)}</span>`
       : "";

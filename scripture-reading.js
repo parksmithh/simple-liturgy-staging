@@ -1,5 +1,5 @@
-import { editionForMode } from "./scripture-preference.js?v=staging-f2c789ae9a0b40b30ef4dd2f2deee1ad7f1f1cfb";
-import { resolveCitation, unavailableNote } from "./scripture-resolve.js?v=staging-f2c789ae9a0b40b30ef4dd2f2deee1ad7f1f1cfb";
+import { editionForMode } from "./scripture-preference.js?v=staging-4680dfbcef503ca6bbf9ec13591aa92c502d9f2b";
+import { resolveCitation, unavailableNote } from "./scripture-resolve.js?v=staging-4680dfbcef503ca6bbf9ec13591aa92c502d9f2b";
 
 /** Unicode ellipsis used in split-verse markers (7… / …7 / …7…). */
 export const VERSE_ELLIPSIS = "\u2026";
@@ -21,8 +21,35 @@ export function formatVerseMarker(verse, { starts = true, ends = true } = {}) {
 
 export function versesToPageText(verses) {
   return (verses || [])
-    .map(verse => `${formatVerseMarker(verse.verse)} ${verse.text}`.trim())
+    .map(verse => {
+      if (verse?.kind === "heading") return String(verse.text || "").trim();
+      return `${formatVerseMarker(verse.verse)} ${verse.text}`.trim();
+    })
+    .filter(Boolean)
     .join("\n\n");
+}
+
+/**
+ * Insert a "Psalm N" heading before each discrete chapter in a verse list.
+ * Used for Simple PS so appointed psalms read sequentially with their own titles.
+ */
+export function withPsalmChapterHeadings(verses) {
+  const out = [];
+  let lastChapter = null;
+  for (const verse of verses || []) {
+    if (verse?.kind === "heading") {
+      out.push(verse);
+      lastChapter = null;
+      continue;
+    }
+    const chapter = Number(verse?.chapter);
+    if (Number.isFinite(chapter) && chapter !== lastChapter) {
+      out.push({ kind: "heading", text: `Psalm ${chapter}` });
+      lastChapter = chapter;
+    }
+    out.push(verse);
+  }
+  return out;
 }
 
 /**
@@ -103,6 +130,15 @@ export function paginateScriptureVersesByFit(verses, fits) {
   };
 
   for (const verse of verses) {
+    if (verse?.kind === "heading") {
+      const marker = String(verse.text || "").trim();
+      if (!marker) continue;
+      const next = [...blocks, { marker, text: "" }];
+      if (blocks.length && !tryFit(next)) commit();
+      blocks.push({ marker, text: "" });
+      continue;
+    }
+
     const words = String(verse.text || "").trim().split(/\s+/).filter(Boolean);
     if (words.length === 0) {
       const marker = formatVerseMarker(verse.verse);
@@ -214,7 +250,19 @@ export function applyScriptureToSimpleView(view, {
       scriptureMode,
       pack,
     });
-    if (built) scripturePages.PS = built;
+    if (built) {
+      if (!built.unavailable && built.verses?.length) {
+        const verses = withPsalmChapterHeadings(built.verses);
+        scripturePages.PS = {
+          ...built,
+          verses,
+          pages: [versesToPageText(verses)],
+          chapterHeadings: true,
+        };
+      } else {
+        scripturePages.PS = built;
+      }
+    }
   }
   return { ...view, scripturePages };
 }
