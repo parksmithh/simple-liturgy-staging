@@ -25,7 +25,10 @@ const REQUIRED_HTML_IDS = [
   "install-dialog",
   "settings-page",
   "device-screen",
-  "full-daily-office-enabled",
+  "prayer-format-status",
+  "settings-help-tray",
+  "settings-help-title",
+  "settings-help-close",
   "preview-simple-morning",
   "preview-simple-evening",
   "preview-traditional-morning",
@@ -279,6 +282,7 @@ const {
   withPsalmChapterHeadings,
 } = await import("../scripture-reading.js");
 const { initializeScripturePreference, setScriptureMode } = await import("../scripture-preference.js");
+const { initializePrayerFormatPreference, setPrayerFormat } = await import("../prayer-format-preference.js");
 
 const indexHtml = await readText("index.html");
 const privacyHtml = await readText("privacy.html");
@@ -800,7 +804,7 @@ check("scripture settings default Off and auto-fit", () => {
   assert(indexHtml.includes('name="scripture-mode" value="web"'), "WEB option must be present");
   assert(indexHtml.includes('name="scripture-mode" value="kjv"'), "KJV option must be present");
   assert(!indexHtml.includes('name="scripture-pagination"'), "fixed verse-count spike removed");
-  assert(indexHtml.includes("auto-fit"), "settings note mentions auto-fit");
+  assert(indexHtml.includes("auto-fit"), "settings help mentions auto-fit");
   const memory = new Map();
   const storage = {
     getItem: key => memory.get(key) ?? null,
@@ -814,6 +818,71 @@ check("scripture settings default Off and auto-fit", () => {
   assert(initializeScripturePreference({ controls, storage }) === "off", "preference defaults to Off");
   assert(setScriptureMode({ controls, storage }, "web") === "web", "WEB persists");
   assert(initializeScripturePreference({ controls, storage }) === "web", "WEB restores");
+});
+
+await checkAsync("settings option buttons share one selected token recipe", async () => {
+  const tokens = await readText("design-tokens.css");
+  const css = await readText("app.css");
+  assert(tokens.includes("--control-selected-border"), "selected border token");
+  assert(tokens.includes("--control-selected-accent"), "selected accent token");
+  assert(css.includes("var(--control-selected-border)"), "option selected state uses the border token");
+  assert(css.includes("var(--control-selected-accent)"), "option selected state uses the accent token");
+  assert(!css.includes(".prayer-format-track"), "custom prayer-format track must be gone");
+  assert(!css.includes(".prayer-format-selector"), "custom prayer-format selector must be gone");
+  assert(indexHtml.includes('class="settings-options prayer-format-options"'), "prayer format uses settings-options");
+  assert(indexHtml.includes('name="prayer-format" value="simple"'), "Simple is a radio option");
+  assert(indexHtml.includes('name="prayer-format" value="full"'), "Traditional is a radio option");
+  const memory = new Map();
+  const storage = {
+    getItem: key => memory.get(key) ?? null,
+    setItem: (key, value) => memory.set(key, String(value)),
+  };
+  const controls = [
+    { value: "simple", checked: false },
+    { value: "full", checked: false },
+  ];
+  assert(initializePrayerFormatPreference({ controls, storage }) === "simple", "prayer format defaults to Simple");
+  assert(setPrayerFormat({ controls, storage }, "full") === "full", "Traditional persists");
+  assert(controls.find(control => control.value === "full")?.checked, "Traditional radio is selected");
+  assert(initializePrayerFormatPreference({ controls, storage }) === "full", "Traditional restores");
+});
+
+await checkAsync("settings help text lives in a full-screen tray", async () => {
+  const css = await readText("app.css");
+  const pageWithoutTemplates = indexHtml.replace(/<template[\s\S]*?<\/template>/g, "");
+  assert(indexHtml.includes('id="settings-help-tray"'), "help tray dialog exists");
+  assert(indexHtml.includes('class="help-tray"'), "help tray uses the tray component");
+  assert(indexHtml.includes('id="settings-help-close"'), "tray has a close control");
+  assert(indexHtml.includes("settings-help-trigger"), "section headings expose help triggers");
+  assert(css.includes(".help-tray {"), "help tray styles exist");
+  assert(/\.help-tray \{[^}]*height:\s*100%/.test(css.replaceAll("\n", " ")), "help tray is full screen");
+  assert(css.includes(".settings-help-summary"), "inline help summary style exists");
+  assert(css.includes("-webkit-line-clamp: 2"), "inline help stays at two lines");
+  assert((pageWithoutTemplates.match(/class="settings-help-summary"/g) || []).length >= 7, "each helped section shows a short summary");
+  for (const [id, copy] of [
+    ["help-appearance", "System follows your device appearance automatically."],
+    ["help-prayer-format", "Choose one format for both offices."],
+    ["help-noonday", "Order of Service for Noonday"],
+    ["help-compline", "Order for Compline"],
+    ["help-reminders", "Importing another file can create duplicates."],
+    ["help-scripture", "Pages auto-fit the screen"],
+    ["help-psalms", "This setting applies to Simple format when Scripture text is Off."],
+  ]) {
+    assert(indexHtml.includes(`id="${id}"`), `missing #${id} help template`);
+    assert(indexHtml.includes(copy), `help copy missing: ${copy}`);
+  }
+  for (const extra of [
+    "Traditional follows the complete Rite II office automatically",
+    "Change or delete them there before importing a replacement",
+    "Pages auto-fit the screen",
+    "Midnight to noon shows Morning Psalms",
+  ]) {
+    assert(!pageWithoutTemplates.includes(extra), `longer help stays in the tray: ${extra}`);
+  }
+  assert(pageWithoutTemplates.includes("System follows your device appearance automatically."), "appearance keeps a two-line summary");
+  assert(pageWithoutTemplates.includes("Choose one format for both offices. Noonday and Compline stay separate."), "prayer format keeps a two-line summary");
+  assert(pageWithoutTemplates.includes('id="prayer-format-status"'), "live prayer-format status stays on the page");
+  assert(pageWithoutTemplates.includes('id="prayer-reminder-status"'), "live reminder status stays on the page");
 });
 
 check("product copy no longer claims Scripture is absent", () => {

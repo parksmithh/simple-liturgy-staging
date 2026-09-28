@@ -66,6 +66,8 @@
   --control: #f8f7f1;
   --control-deep: #d9dcd5;
   --control-text: var(--color-bwr-black);
+  --control-selected-border: var(--red);
+  --control-selected-accent: var(--red);
   --control-shadow: #8d928b;
   --eyebrow: #4b504b;
   --screen-border: #141614;

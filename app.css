@@ -501,53 +501,22 @@ h1 { margin: 0; font: var(--font-weight-semibold) var(--type-app-title) var(--fo
 .settings-card a { color: var(--app-text); font-weight: var(--font-weight-bold); text-underline-offset: 3px; }
 .settings-options { display: grid; gap: 8px; margin: 0; padding: 0; border: 0; }
 .theme-options { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-.psalm-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.psalm-options,
+.prayer-format-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .timed-office-options { display: grid; gap: 18px; }
 .prayer-format-settings { gap: 14px; }
-.prayer-format-intro { color: var(--eyebrow); }
-.prayer-format-selector { position: relative; display: block; cursor: pointer; }
-.prayer-format-selector input {
-  position: absolute;
-  z-index: 2;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  margin: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-.prayer-format-track {
-  position: relative;
-  display: grid;
-  min-height: 58px;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: stretch;
+.settings-heading { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+.settings-heading .settings-switch { min-width: 0; }
+.settings-help-trigger { min-width: 44px; min-height: 44px; padding: 0; font-weight: var(--font-weight-bold); }
+.settings-help-summary {
+  display: -webkit-box;
   overflow: hidden;
-  border: 2px solid var(--line);
-  background: var(--control);
-  color: var(--control-text);
+  color: var(--eyebrow);
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
 }
-.prayer-format-track::before {
-  position: absolute;
-  inset: 0 50% 0 0;
-  background: var(--red);
-  content: "";
-  transition: transform .18s steps(2, end);
-}
-.prayer-format-option {
-  z-index: 1;
-  display: grid;
-  place-items: center;
-  padding: 10px;
-  font-weight: var(--font-weight-bold);
-  text-align: center;
-  transition: color .18s steps(2, end);
-}
-.prayer-format-option-simple,
-.prayer-format-selector input:checked + .prayer-format-track .prayer-format-option-traditional { color: var(--paper); }
-.prayer-format-selector input:checked + .prayer-format-track::before { transform: translateX(100%); }
-.prayer-format-selector input:checked + .prayer-format-track .prayer-format-option-simple { color: var(--control-text); }
-.prayer-format-selector input:focus-visible + .prayer-format-track { outline: 3px solid var(--red); outline-offset: 3px; }
+.settings-help-trigger:focus-visible { outline: 3px solid var(--red); outline-offset: 3px; }
 .prayer-format-previews { display: grid; gap: 14px; }
 .prayer-format-preview-group { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
 .prayer-format-preview-label {
@@ -576,7 +545,7 @@ h1 { margin: 0; font: var(--font-weight-semibold) var(--type-app-title) var(--fo
 .prayer-time-select:disabled { cursor: default; opacity: .55; }
 .settings-options legend { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 .settings-options label { position: relative; display: grid; min-height: 52px; place-items: center; border: 2px solid var(--line); border-radius: 0; background: var(--control); color: var(--control-text); font-weight: var(--font-weight-bold); cursor: pointer; }
-.settings-options label:has(input:checked) { border-color: var(--red); box-shadow: inset 0 -4px var(--red); }
+.settings-options label:has(input:checked) { border-color: var(--control-selected-border); box-shadow: inset 0 -4px var(--control-selected-accent); }
 .settings-options input { position: absolute; opacity: 0; pointer-events: none; }
 .settings-options label:has(input:focus-visible) { outline: 3px solid var(--red); outline-offset: 3px; }
 .settings-switch { display: grid; min-height: 58px; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 18px; cursor: pointer; }
@@ -670,6 +639,41 @@ dialog h2 { margin: 6px 0 12px; font: var(--font-weight-semibold) var(--type-dia
 dialog p { line-height: 1.5; }
 .dialog-steps { display: grid; gap: 10px; margin-bottom: 18px; }
 dialog button { width: 100%; border: 1px solid var(--dialog-border); border-radius: 4px; background: var(--paper); color: var(--ink); padding: 12px; font-weight: var(--font-weight-bold); }
+.help-tray {
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  inset: 0;
+  border: 0;
+  border-radius: 0;
+  background: var(--app-background);
+  color: var(--app-text);
+  padding: 0;
+}
+.help-tray-form {
+  display: grid;
+  min-height: 100%;
+  align-content: start;
+  gap: 16px;
+  padding: max(16px, env(safe-area-inset-top)) max(18px, env(safe-area-inset-right)) max(18px, env(safe-area-inset-bottom)) max(18px, env(safe-area-inset-left));
+}
+.help-tray-bar { display: flex; justify-content: flex-end; }
+.help-tray .icon-button {
+  width: auto;
+  min-width: 44px;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  background: var(--control);
+  color: var(--control-text);
+  padding: 0;
+}
+.help-tray .icon-button:focus-visible { outline: 3px solid var(--red); outline-offset: 3px; }
+.help-tray h2 { margin: 0; }
+.help-tray-body { display: grid; gap: 12px; font-size: var(--type-footer); line-height: 1.55; }
+.help-tray-body a { color: var(--app-text); font-weight: var(--font-weight-bold); text-underline-offset: 3px; }
 .onboarding-sheet {
   position: fixed;
   width: min(100%, 520px);
@@ -701,7 +705,7 @@ dialog button { width: 100%; border: 1px solid var(--dialog-border); border-radi
   .device-screen.has-feast .pixel-art-stack { top: 38px; }
   .app-footer { font-size: var(--type-footer); }
   .platform-steps { grid-template-columns: 1fr; }
-  .theme-options, .psalm-options { grid-template-columns: 1fr; }
+  .theme-options, .psalm-options, .prayer-format-options { grid-template-columns: 1fr; }
   .prayer-time-row { grid-template-columns: minmax(0, 1fr) 128px; gap: 10px; }
   .prayer-format-preview-group { gap: 8px; }
   .prayer-format-previews .settings-action { padding-inline: 8px; }

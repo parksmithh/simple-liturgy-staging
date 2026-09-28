@@ -1,29 +1,38 @@
 const STORAGE_KEY = "simple-liturgy.prayer-format";
 export const SIMPLE_PRAYER_FORMAT = "simple";
 export const FULL_PRAYER_FORMAT = "full";
+const FORMATS = new Set([SIMPLE_PRAYER_FORMAT, FULL_PRAYER_FORMAT]);
 
 function normalizedFormat(value) {
-  return value === FULL_PRAYER_FORMAT ? FULL_PRAYER_FORMAT : SIMPLE_PRAYER_FORMAT;
+  return FORMATS.has(value) ? value : SIMPLE_PRAYER_FORMAT;
 }
 
-export function initializePrayerFormatPreference({ control, storage }) {
+function updateControls(controls, format) {
+  controls?.forEach(control => {
+    control.checked = control.value === format;
+  });
+}
+
+export function initializePrayerFormatPreference({ controls, storage }) {
   const format = normalizedFormat(storage.getItem(STORAGE_KEY));
-  control.checked = format === FULL_PRAYER_FORMAT;
+  updateControls(controls, format);
   return format;
 }
 
-export function setPrayerFormat({ control, storage }, format) {
+export function setPrayerFormat({ controls, storage }, format) {
   const normalized = normalizedFormat(format);
-  control.checked = normalized === FULL_PRAYER_FORMAT;
+  updateControls(controls, normalized);
   try {
     storage.setItem(STORAGE_KEY, normalized);
-  } catch {}
+  } catch {
+    // Keep UI in sync even when storage is unavailable.
+  }
   return normalized;
 }
 
-export function bindPrayerFormatPreference({ control, storage, onChange }) {
-  control.addEventListener("change", () => {
-    const format = control.checked ? FULL_PRAYER_FORMAT : SIMPLE_PRAYER_FORMAT;
-    onChange(setPrayerFormat({ control, storage }, format));
-  });
+export function bindPrayerFormatPreference({ controls, storage, onChange }) {
+  controls.forEach(control => control.addEventListener("change", () => {
+    if (!control.checked) return;
+    onChange(setPrayerFormat({ controls, storage }, control.value));
+  }));
 }

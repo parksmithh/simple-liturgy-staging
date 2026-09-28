@@ -1,5 +1,5 @@
-import { selectAppointedPsalms } from "./daily-office.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
-import { prioritizedDates } from "./reading-pack-loader.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
+import { selectAppointedPsalms } from "./daily-office.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
+import { prioritizedDates } from "./reading-pack-loader.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
 
 const DEFAULT_CONTENT_URLS = Object.freeze({
   riteTwo: "data/daily-office/rite-two.json",

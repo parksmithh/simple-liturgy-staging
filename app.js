@@ -1,45 +1,45 @@
-import { initializeAnalytics } from "./analytics.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
-import { controlModel, createState, dateWithOffset, focusPageCounts, focusSwipeEvent, handle, keyboardEvent, lessonValues, LORDS_PRAYER_TEXT, model, numberedLiturgicalTextHtml, paginatePrayerByFit, paginateTimedOfficeByFit, parseBundle, parseCollects, prayerAvailableHeight, prayerLineationHtml, remapFocusPageAfterLayout, resolvePrayer, screenClickDecision, screenHtml, scriptureCitationPresentation, stateAfterDateChange, stateForDate, swipeEvent, timedOfficeAvailableHeight, timedOfficeTextHtml, upcomingFeastDays, usesNumberedVerseLayout } from "./bookmark-engine.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
-import { bindComplinePreference, complinePreviewMarkerAt, complinePreviewRelation, createComplineBoundaryTimer, initializeComplinePreference, refreshComplinePreview, setComplineEnabled, shouldShowComplinePreview } from "./compline-preference.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
-import { createDailyOfficeDayLoader, mergeDailyOfficeContent } from "./daily-office-content.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
-import { composeDailyOffice } from "./daily-office.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
-import { bindFeastLinksPreference, initializeFeastLinks } from "./feast-link-preference.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
-import { createFullOfficePreviewController, fullOfficeLoadingHtml, fullOfficeLoadingService, isFullOfficeService } from "./full-office-lifecycle.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
-import { bindNoondayPreference, createNoondayBoundaryTimer, initializeNoondayPreference, noondayPreviewMarkerAt, noondayPreviewRelation, refreshNoondayPreview, setNoondayEnabled, shouldShowNoondayPreview } from "./noonday-preference.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
-import { localIsoDate, officePeriodAt, scheduledServiceAt, timedOfficePreviewToExit } from "./office-schedule.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
-import { calendarEventIconAssetPath, paintPixelArtStack } from "./pixel-art.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
-import { bindPrayerFormatPreference, initializePrayerFormatPreference } from "./prayer-format-preference.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
-import { bindPsalmPreference, createPsalmBoundaryTimer, initializePsalmPreference, psalmOfficeAt, refreshPsalmDisplay } from "./psalm-preference.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
-import { bindPrayerReminderSettings } from "./prayer-calendar.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
-import { createReadingPackLoader, loadAroundToday, mergeReadingBundle } from "./reading-pack-loader.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
-import { createScripturePackLoader } from "./scripture-pack-loader.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
+import { initializeAnalytics } from "./analytics.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
+import { controlModel, createState, dateWithOffset, focusPageCounts, focusSwipeEvent, handle, keyboardEvent, lessonValues, LORDS_PRAYER_TEXT, model, numberedLiturgicalTextHtml, paginatePrayerByFit, paginateTimedOfficeByFit, parseBundle, parseCollects, prayerAvailableHeight, prayerLineationHtml, remapFocusPageAfterLayout, resolvePrayer, screenClickDecision, screenHtml, scriptureCitationPresentation, stateAfterDateChange, stateForDate, swipeEvent, timedOfficeAvailableHeight, timedOfficeTextHtml, upcomingFeastDays, usesNumberedVerseLayout } from "./bookmark-engine.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
+import { bindComplinePreference, complinePreviewMarkerAt, complinePreviewRelation, createComplineBoundaryTimer, initializeComplinePreference, refreshComplinePreview, setComplineEnabled, shouldShowComplinePreview } from "./compline-preference.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
+import { createDailyOfficeDayLoader, mergeDailyOfficeContent } from "./daily-office-content.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
+import { composeDailyOffice } from "./daily-office.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
+import { bindFeastLinksPreference, initializeFeastLinks } from "./feast-link-preference.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
+import { createFullOfficePreviewController, fullOfficeLoadingHtml, fullOfficeLoadingService, isFullOfficeService } from "./full-office-lifecycle.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
+import { bindNoondayPreference, createNoondayBoundaryTimer, initializeNoondayPreference, noondayPreviewMarkerAt, noondayPreviewRelation, refreshNoondayPreview, setNoondayEnabled, shouldShowNoondayPreview } from "./noonday-preference.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
+import { localIsoDate, officePeriodAt, scheduledServiceAt, timedOfficePreviewToExit } from "./office-schedule.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
+import { calendarEventIconAssetPath, paintPixelArtStack } from "./pixel-art.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
+import { bindPrayerFormatPreference, initializePrayerFormatPreference } from "./prayer-format-preference.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
+import { bindPsalmPreference, createPsalmBoundaryTimer, initializePsalmPreference, psalmOfficeAt, refreshPsalmDisplay } from "./psalm-preference.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
+import { bindPrayerReminderSettings } from "./prayer-calendar.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
+import { createReadingPackLoader, loadAroundToday, mergeReadingBundle } from "./reading-pack-loader.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
+import { createScripturePackLoader } from "./scripture-pack-loader.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
 import {
   bindScripturePreference,
   editionForMode,
   initializeScripturePreference,
-} from "./scripture-preference.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
+} from "./scripture-preference.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
 import {
   applyScriptureToSimpleView,
   applyScriptureToTimedOffice,
   paginateScriptureVersesByFit,
-} from "./scripture-reading.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
-import { initializeTheme, setThemeMode, syncSystemTheme } from "./theme.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
-import { createTimedOfficeOnboardingController } from "./timed-office-onboarding.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
-import { appVersionLabel } from "./version.js?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde";
+} from "./scripture-reading.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
+import { initializeTheme, setThemeMode, syncSystemTheme } from "./theme.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
+import { createTimedOfficeOnboardingController } from "./timed-office-onboarding.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
+import { appVersionLabel } from "./version.js?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada";
 
 const APP_ROOT = new URL(".", window.location.href);
 const CONTENT_ROOT = APP_ROOT.pathname.endsWith("/web/") ? new URL("../", APP_ROOT) : APP_ROOT;
-const PACK_URL = new URL("firmware/circuitpython/readings.active.jsonl?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde", CONTENT_ROOT);
-const PACK_INDEX_URL = new URL("firmware/circuitpython/readings.active.idx?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde", CONTENT_ROOT);
-const COLLECTS_URL = new URL("data/collects/collects.json?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde", CONTENT_ROOT);
+const PACK_URL = new URL("firmware/circuitpython/readings.active.jsonl?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada", CONTENT_ROOT);
+const PACK_INDEX_URL = new URL("firmware/circuitpython/readings.active.idx?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada", CONTENT_ROOT);
+const COLLECTS_URL = new URL("data/collects/collects.json?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada", CONTENT_ROOT);
 const SCRIPTURE_PACK_URLS = {
-  engwebp: new URL("data/scripture/engwebp.json?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde", CONTENT_ROOT),
-  "eng-kjv": new URL("data/scripture/eng-kjv.json?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde", CONTENT_ROOT),
+  engwebp: new URL("data/scripture/engwebp.json?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada", CONTENT_ROOT),
+  "eng-kjv": new URL("data/scripture/eng-kjv.json?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada", CONTENT_ROOT),
 };
 const FULL_OFFICE_URLS = {
-  riteTwo: new URL("data/daily-office/rite-two.json?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde", CONTENT_ROOT),
-  index: new URL("dor-engine/daily-office-content.index.json?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde", APP_ROOT),
-  pack: new URL("dor-engine/daily-office-content.active.jsonl?v=staging-f8074db9f422706e61d7b851b2aa2e00836decde", APP_ROOT),
+  riteTwo: new URL("data/daily-office/rite-two.json?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada", CONTENT_ROOT),
+  index: new URL("dor-engine/daily-office-content.index.json?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada", APP_ROOT),
+  pack: new URL("dor-engine/daily-office-content.active.jsonl?v=staging-1df3ecf109e4fc116862522ace1ff63f184a0ada", APP_ROOT),
 };
 const DOUBLE_KEY_WINDOW_MS = 500;
 const INSTALL_TOOLTIP_SESSION_KEY = "simple-liturgy.install-tooltip-dismissed";
@@ -52,7 +52,7 @@ const deviceScreen = document.querySelector("#device-screen");
 const themeControls = document.querySelectorAll('input[name="theme"]');
 const psalmControls = document.querySelectorAll('input[name="psalm-display"]');
 const scriptureControls = document.querySelectorAll('input[name="scripture-mode"]');
-const prayerFormatControl = document.querySelector("#full-daily-office-enabled");
+const prayerFormatControls = document.querySelectorAll('input[name="prayer-format"]');
 const previewSimpleMorningButton = document.querySelector("#preview-simple-morning");
 const previewSimpleEveningButton = document.querySelector("#preview-simple-evening");
 const previewTraditionalMorningButton = document.querySelector("#preview-traditional-morning");
@@ -77,6 +77,9 @@ const readerMenu = document.querySelector("#reader-menu");
 const openReaderButton = document.querySelector("#open-reader-button");
 const shareButton = document.querySelector("#share-button");
 const shareStatus = document.querySelector("#share-status");
+const settingsHelpTray = document.querySelector("#settings-help-tray");
+const settingsHelpTitle = document.querySelector("#settings-help-title");
+const settingsHelpBody = document.querySelector("#settings-help-body");
 const installTooltip = document.querySelector("#install-tooltip");
 const appVersion = document.querySelector("#app-version");
 const canonicalUrl = document.querySelector('link[rel="canonical"]')?.href || window.location.href;
@@ -242,7 +245,7 @@ const psalmContext = { controls: psalmControls, storage: window.localStorage };
 const scriptureContext = { controls: scriptureControls, storage: window.localStorage };
 const noondayContext = { control: noondayControl, storage: window.localStorage };
 const complineContext = { control: complineControl, storage: window.localStorage };
-const prayerFormatContext = { control: prayerFormatControl, storage: window.localStorage };
+const prayerFormatContext = { controls: prayerFormatControls, storage: window.localStorage };
 const psalmBoundary = createPsalmBoundaryTimer({
   onBoundary: now => refreshAt(now, false),
 });
@@ -316,30 +319,31 @@ function fullOfficeMarkerAt(date = new Date()) {
 
 function syncPrayerFormatStatus() {
   if (fullOfficeLoad) {
+    prayerFormatStatus.hidden = false;
     prayerFormatStatus.textContent = "Preparing the Traditional Rite II offices…";
     retryFullOfficeButton.hidden = true;
     return;
   }
   if (fullOfficeError) {
+    prayerFormatStatus.hidden = false;
     prayerFormatStatus.textContent = "Traditional Prayer is temporarily unavailable. Simple Prayer will remain active.";
     retryFullOfficeButton.hidden = false;
     return;
   }
   if (fullOfficeOfflineState === "preparing") {
+    prayerFormatStatus.hidden = false;
     prayerFormatStatus.textContent = "Traditional Prayer is active; finishing its offline copy…";
     retryFullOfficeButton.hidden = true;
     return;
   }
   if (fullOfficeOfflineError) {
+    prayerFormatStatus.hidden = false;
     prayerFormatStatus.textContent = "Traditional Prayer is active online, but its offline copy could not be completed.";
     retryFullOfficeButton.hidden = false;
     return;
   }
-  prayerFormatStatus.textContent = prayerFormat === "full"
-    ? `Traditional follows the complete Rite II office automatically${
-      fullOfficeOfflineState === "ready" ? ", with the offices ready offline." : "."
-    }`
-    : "Simple keeps the concise prayer-and-readings backbone.";
+  prayerFormatStatus.hidden = true;
+  prayerFormatStatus.textContent = "";
   retryFullOfficeButton.hidden = true;
 }
 
@@ -1731,6 +1735,21 @@ bindNoondayPreference({ ...noondayContext, onChange: enabled => applyTimedOffice
 
 bindComplinePreference({ ...complineContext, onChange: enabled => applyTimedOfficePreference("compline", enabled) });
 bindPrayerFormatPreference({ ...prayerFormatContext, onChange: applyPrayerFormat });
+
+function bindSettingsHelp() {
+  if (!settingsHelpTray || !settingsHelpTitle || !settingsHelpBody) return;
+  document.querySelectorAll("[data-settings-help]").forEach(button => {
+    button.addEventListener("click", () => {
+      const template = document.querySelector(`#${CSS.escape(button.dataset.settingsHelp)}`);
+      settingsHelpTitle.textContent = button.dataset.settingsHelpTitle || "Help";
+      settingsHelpBody.replaceChildren();
+      if (template?.content) settingsHelpBody.append(template.content.cloneNode(true));
+      settingsHelpTray.showModal();
+    });
+  });
+}
+
+bindSettingsHelp();
 
 themeContext.media.addEventListener?.("change", () => {
   if (!syncSystemTheme(themeContext)) return;
