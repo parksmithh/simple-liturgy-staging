@@ -530,13 +530,14 @@ await checkAsync("iOS PWA avoids black-translucent status bar blur", async () =>
   const indexHtml = await readText("index.html");
   const appCss = await readText("app.css");
   const appJs = await readText("app.js");
+  const themeJs = await readText("theme.js");
   assert(
     !indexHtml.includes("black-translucent"),
-    "black-translucent locks iOS 27 scroll-edge blur on"
+    "black-translucent locks iOS 27 scroll-edge blur on; use opaque black/default instead"
   );
   assert(
-    !indexHtml.includes("apple-mobile-web-app-status-bar-style"),
-    "omit Apple status-bar-style so the platform keeps obscuredInsets and can hide the scroll-edge blur"
+    /apple-mobile-web-app-status-bar-style" content="black"/.test(indexHtml),
+    "index must ship an opaque Apple status bar style for installed PWAs"
   );
   assert(indexHtml.includes("ios-pwa-status-strip"), "index must include the iOS PWA status strip");
   assert(indexHtml.includes("dataset.standalone"), "index must mark standalone before first paint");
@@ -545,9 +546,13 @@ await checkAsync("iOS PWA avoids black-translucent status bar blur", async () =>
   assert(appCss.includes("ios-pwa-blur-panel"), "app.css must style the iOS PWA blur kick panel");
   assert(appCss.includes("--reader-top"), "reader must share a --reader-top inset for header and menu");
   assert(
-    /--reader-top:\s*max\(56px,\s*calc\(env\(safe-area-inset-top\) \+ 8px\)\)/.test(appCss),
-    "portrait reader header must clear the status bar so SUN/date stay visible"
+    /--reader-top:\s*max\(16px,\s*calc\(env\(safe-area-inset-top\) \+ 8px\)\)/.test(appCss),
+    "portrait reader must trust safe-area with a 16px floor (no 56px double-pad)"
   );
+  assert(themeJs.includes("statusBarMeta"), "theme.js must sync the Apple status bar style with light/dark theme");
+  assert(themeJs.includes('"black"'), "dark theme must set status bar style to black");
+  assert(themeJs.includes('"default"'), "light theme must set status bar style to default");
+  assert(appJs.includes("statusBarMeta"), "app.js must pass statusBarMeta into theme");
   assert(appJs.includes("kickIosPwaTopBlur"), "app.js must kick iOS PWA top blur on install");
 });
 

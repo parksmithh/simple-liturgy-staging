@@ -923,10 +923,11 @@ dialog button { width: 100%; border: 1px solid var(--dialog-border); border-radi
 
 @media (orientation: portrait) and (max-width: 767px),
   (orientation: portrait) and (hover: none) and (pointer: coarse) {
-  /* Keep SUN/date + ⋮ menu on one top edge, clear of the status bar /
-     Dynamic Island. A 12px inset hid the weekday/date under system chrome. */
+  /* Shared top edge for SUN/date + ⋮ menu. Trust safe-area when present;
+     a 56px floor double-padded when the opaque status bar already clears
+     chrome (safe-area 0). Floor at 16px so browser chrome still has air. */
   .reader {
-    --reader-top: max(56px, calc(env(safe-area-inset-top) + 8px));
+    --reader-top: max(16px, calc(env(safe-area-inset-top) + 8px));
     --reader-right: max(12px, env(safe-area-inset-right));
   }
   .header-summary { line-height: 1.25; }
@@ -949,7 +950,7 @@ dialog button { width: 100%; border: 1px solid var(--dialog-border); border-radi
 .reader.focus-mode .device-screen { padding: 0; }
 .reader.focus-mode .screen-copy {
   gap: clamp(6px, 1.5vh, 12px);
-  padding-top: var(--reader-top, max(56px, calc(env(safe-area-inset-top) + 8px)));
+  padding-top: var(--reader-top, max(16px, calc(env(safe-area-inset-top) + 8px)));
   padding-right: max(12px, env(safe-area-inset-right));
   padding-bottom: max(12px, calc(env(safe-area-inset-bottom) + 6px));
   padding-left: max(12px, env(safe-area-inset-left));
