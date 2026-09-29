@@ -1,5 +1,5 @@
-import { editionForMode } from "./scripture-preference.js?v=staging-e2413448ca2960a67ac33e756724e7c866fdde39";
-import { resolveCitation, unavailableNote } from "./scripture-resolve.js?v=staging-e2413448ca2960a67ac33e756724e7c866fdde39";
+import { editionForMode } from "./scripture-preference.js?v=staging-afa144ea75866b8c7e12fa5141427b9c28825454";
+import { resolveCitation, unavailableNote } from "./scripture-resolve.js?v=staging-afa144ea75866b8c7e12fa5141427b9c28825454";
 
 /** Unicode ellipsis used in split-verse markers (7… / …7 / …7…). */
 export const VERSE_ELLIPSIS = "\u2026";
@@ -95,14 +95,14 @@ export function withChapterHeadings(verses) {
 export const withPsalmChapterHeadings = withChapterHeadings;
 
 /**
- * Psalms always get per-chapter headings; other lessons only when they span chapters.
+ * Insert per-chapter body headings when a reading spans more than one chapter.
+ * Single-chapter Psalms keep the full citation in focus chrome (e.g. Psalm 89:19–52)
+ * instead of a bare "Psalm 89" body heading.
  */
 export function decorateScriptureVerses(verses) {
   if (!verses?.length) return { verses: verses || [], chapterHeadings: false };
   const keys = distinctChapterKeys(verses);
-  if (keys.size === 0) return { verses, chapterHeadings: false };
-  const psalmOnly = [...keys].every(key => key.startsWith("PSA:"));
-  if (!psalmOnly && keys.size <= 1) return { verses, chapterHeadings: false };
+  if (keys.size <= 1) return { verses: verses || [], chapterHeadings: false };
   return { verses: withChapterHeadings(verses), chapterHeadings: true };
 }
 
