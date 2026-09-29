@@ -1139,10 +1139,10 @@ await checkAsync("scripture preference remaps Simple and Traditional lesson focu
   );
   const eveningHtml = screenHtml(multiEvening, { psalmDisplayMode: "by-time-of-day", psalmOffice: "evening" });
   assert(eveningHtml.includes("Evening Psalms"), "evening WEB Psalm focus uses Evening Psalms label");
-  assert(eveningHtml.includes("focus-cite"), "multi-chapter Psalm focus still shows the full citation");
-  assert(eveningHtml.includes("Psalm 19; Psalm 46"), "multi-chapter Psalm focus cite lists each Psalm");
-  assert(eveningHtml.includes("timed-office-psalm-heading"), "multi-chapter Psalm focus renders chapter headings in body");
-  assert(!/class="label">Psalm 19; Psalm 46/.test(eveningHtml), "combined citation is focus-cite, not the section label");
+  assert(!eveningHtml.includes("focus-cite"), "multi-chapter Psalm focus omits the combined citation");
+  assert(!eveningHtml.includes("Psalm 19; Psalm 46"), "multi-chapter Psalm focus does not stack a combined cite");
+  assert(eveningHtml.includes("timed-office-psalm-heading"), "multi-chapter Psalm focus renders one chapter heading at a time");
+  assert(/timed-office-psalm-heading[\s\S]*Psalm 19/.test(eveningHtml), "first Psalm is named in the body heading");
   const eveningPage = multiEvening.scripturePages.PS.pages[0] || "";
   assert(
     eveningPage.includes("Psalm 19") && eveningPage.includes("Psalm 46")

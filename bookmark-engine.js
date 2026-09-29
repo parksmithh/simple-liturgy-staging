@@ -1,9 +1,9 @@
-import { wikipediaUrlForFeast } from "./feast-wikipedia.js?v=staging-6e407f1601ea49b90c16d572c4409a52d8cbf9d7";
+import { wikipediaUrlForFeast } from "./feast-wikipedia.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2";
 import {
   adaptLegacyTimedOffice,
   officeDocumentToViewSections,
-} from "./office-document.js?v=staging-6e407f1601ea49b90c16d572c4409a52d8cbf9d7";
-import { scripturePageBodyText } from "./scripture-reading.js?v=staging-6e407f1601ea49b90c16d572c4409a52d8cbf9d7";
+} from "./office-document.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2";
+import { scripturePageBodyText } from "./scripture-reading.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2";
 
 export function parseBundle(text) {
   const readings = new Map();
@@ -1171,12 +1171,16 @@ function readingContentHtml(view, key, className, psalmPresentation) {
     const sectionLabel = key === "PS"
       ? `${PSALM_OFFICE_LABELS[psalmPresentation.office]} Psalms`
       : READING_LABELS[key];
-    // Multi-chapter / Psalm streams: page 1 uses the section label + full citation;
-    // later pages use the active chapter title (Psalm 19, Hebrews 12, …).
+    // Multi-chapter streams: page 1 uses the section label; later pages use the
+    // active chapter title. Psalms omit a combined focus-cite so each Psalm is
+    // named once via the body chapter heading (Psalm 8, then Psalm 148, …).
     if (built.chapterHeadings) {
       if (page > 0) {
         const chapterTitle = built.pageHeadings?.[page] || citationText;
         return `<span class="label">${escapeHtml(chapterTitle)}${pageIndex}</span>${body}`;
+      }
+      if (key === "PS") {
+        return `<span class="label">${sectionLabel}${pageIndex}</span>${body}`;
       }
       const citation = citationText
         ? `<span class="focus-cite">${escapeHtml(citationText)}</span>`
