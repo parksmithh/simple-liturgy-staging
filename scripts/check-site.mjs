@@ -526,21 +526,27 @@ await checkAsync("versioned assets use APP_VERSION", async () => {
   assert(appJs.includes("controllerchange"), "the reader must reload when a new service worker takes control");
 });
 
-await checkAsync("site footer stays reachable on the reader and in settings", async () => {
+await checkAsync("reader footer is Tap to focus or Continue on one screen", async () => {
   const css = await readText("app.css");
+  const engine = await readText("bookmark-engine.js");
   const settingsEnd = indexHtml.indexOf("</main>");
   const readerAt = indexHtml.indexOf('<section class="reader"');
   const footerAt = indexHtml.indexOf('<footer class="app-footer">');
   assert(settingsEnd > 0 && readerAt > settingsEnd, "reader follows the settings page");
-  assert(footerAt > readerAt, "footer follows the reader, outside the hidden settings page");
+  assert(footerAt > 0 && footerAt < settingsEnd, "install, FAQ, and credit footer stays inside settings");
   const readerRule = css.match(/\.reader \{[^}]*\}/);
-  assert(readerRule && !/position:\s*fixed/.test(readerRule[0]), "reader stays in document flow above the footer");
-  assert(/height:\s*100svh/.test(readerRule[0]), "reader still fills the first screen");
+  assert(readerRule && /position:\s*fixed/.test(readerRule[0]), "reader stays fixed to one screen");
   const lockedReader = css.match(/html:not\(\.settings-open\)[^{]*\{[^}]*\}/g) || [];
-  assert(lockedReader.length > 0, "reader surface still has its own page background");
+  assert(lockedReader.length > 0, "reader surface locks the page");
   assert(
-    lockedReader.every(block => !/overflow:\s*hidden/.test(block) && !/height:\s*100%/.test(block)),
-    "reader page scroll is not locked, so the footer can be reached",
+    lockedReader.every(block => /overflow:\s*hidden/.test(block) && /height:\s*100%/.test(block)),
+    "reader page does not scroll to reach a footer",
+  );
+  assert(engine.includes(">Tap to focus</span>"), "overview reader footer is Tap to focus");
+  assert(engine.includes(">Continue</span>"), "focus reader footer is Continue");
+  assert(
+    /\.overview-focus-hint,\s*\.focus-continue-hint \{[^}]*position:\s*absolute/.test(css),
+    "Tap to focus and Continue stay pinned on the reader",
   );
 });
 

@@ -121,12 +121,14 @@ h1 { margin: 0; font: var(--font-weight-semibold) var(--type-app-title) var(--fo
 .reader-launch { font-weight: var(--font-weight-bold); }
 
 .reader {
-  position: relative;
+  position: fixed;
+  z-index: 1000;
+  inset: 0;
   min-width: 0;
   display: flex;
-  width: 100%;
-  min-height: 100svh;
-  height: 100svh;
+  width: auto;
+  min-height: 0;
+  height: auto;
   flex-direction: column;
   justify-content: stretch;
   gap: clamp(12px, 2vh, 20px);
@@ -161,7 +163,7 @@ h1 { margin: 0; font: var(--font-weight-semibold) var(--type-app-title) var(--fo
 }
 
 .install-tooltip {
-  position: absolute;
+  position: fixed;
   z-index: 7;
   bottom: max(8px, env(safe-area-inset-bottom));
   left: 50%;
@@ -599,13 +601,7 @@ h1 { margin: 0; font: var(--font-weight-semibold) var(--type-app-title) var(--fo
 .mobile-shortcuts { display: none; }
 .mobile-shortcuts > div { grid-template-columns: 1fr; gap: 2px; }
 .mobile-shortcuts span { color: var(--eyebrow); }
-.app-footer {
-  display: grid;
-  width: min(100%, 760px);
-  gap: 14px;
-  margin: 0 auto;
-  padding: 18px max(16px, env(safe-area-inset-right)) max(28px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
-}
+.app-footer { display: grid; gap: 14px; }
 .install-guide { display: grid; gap: 14px; }
 .app-footer h2, .app-footer h3, .app-footer p { margin: 0; }
 .app-footer h2 { font: var(--font-weight-semibold) var(--type-section-title) var(--font-family-display); }
@@ -793,7 +789,7 @@ dialog button { width: 100%; border: 1px solid var(--dialog-border); border-radi
     --type-reader-noonday: clamp(24px, 6.7vh, 27px);
     --type-reader-scripture: clamp(19px, 5.36vh, 22px);
   }
-  html:not(.settings-open), html:not(.settings-open) body { background: var(--paper); }
+  html:not(.settings-open), html:not(.settings-open) body { width: 100%; height: 100%; overflow: hidden; background: var(--paper); }
   .reader {
     display: block;
     padding: 0;
@@ -889,6 +885,9 @@ dialog button { width: 100%; border: 1px solid var(--dialog-border); border-radi
 
 @media (max-width: 767px), (hover: none) and (pointer: coarse) {
   html:not(.settings-open), html:not(.settings-open) body {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
     background: var(--paper);
   }
   .lords-prayer-text br { display: none; }
@@ -899,6 +898,9 @@ dialog button { width: 100%; border: 1px solid var(--dialog-border); border-radi
     background: var(--paper);
   }
   .installed-pwa .reader {
+    position: relative;
+    inset: auto;
+    width: 100%;
     min-height: 100vh;
     height: 100vh;
   }
