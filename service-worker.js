@@ -1,15 +1,15 @@
-const CACHE = "daily-office-reader-staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2";
+const CACHE = "daily-office-reader-staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923";
 const CACHE_PREFIX = "daily-office-reader-";
 const RELEASE_MARKER = `?v=${CACHE.slice(CACHE_PREFIX.length)}`;
 const CONTENT_ROOT = self.registration.scope.endsWith("/web/") ? "../" : "./";
-const PACK_URL = `${CONTENT_ROOT}firmware/circuitpython/readings.active.jsonl?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2`;
-const PACK_INDEX_URL = `${CONTENT_ROOT}firmware/circuitpython/readings.active.idx?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2`;
-const COLLECTS_URL = `${CONTENT_ROOT}data/collects/collects.json?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2`;
-const SCRIPTURE_WEB_URL = `${CONTENT_ROOT}data/scripture/engwebp.json?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2`;
-const SCRIPTURE_KJV_URL = `${CONTENT_ROOT}data/scripture/eng-kjv.json?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2`;
-const RITE_TWO_URL = `${CONTENT_ROOT}data/daily-office/rite-two.json?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2`;
-const FULL_OFFICE_INDEX_URL = "./dor-engine/daily-office-content.index.json?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2";
-const FULL_OFFICE_PACK_URL = "./dor-engine/daily-office-content.active.jsonl?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2";
+const PACK_URL = `${CONTENT_ROOT}firmware/circuitpython/readings.active.jsonl?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923`;
+const PACK_INDEX_URL = `${CONTENT_ROOT}firmware/circuitpython/readings.active.idx?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923`;
+const COLLECTS_URL = `${CONTENT_ROOT}data/collects/collects.json?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923`;
+const SCRIPTURE_WEB_URL = `${CONTENT_ROOT}data/scripture/engwebp.json?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923`;
+const SCRIPTURE_KJV_URL = `${CONTENT_ROOT}data/scripture/eng-kjv.json?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923`;
+const RITE_TWO_URL = `${CONTENT_ROOT}data/daily-office/rite-two.json?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923`;
+const FULL_OFFICE_INDEX_URL = "./dor-engine/daily-office-content.index.json?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923";
+const FULL_OFFICE_PACK_URL = "./dor-engine/daily-office-content.active.jsonl?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923";
 const FULL_OFFICE_CONTENT = [
   RITE_TWO_URL,
   FULL_OFFICE_INDEX_URL,
@@ -31,38 +31,38 @@ const SHELL = [
   "./LICENSE.md",
   "./NOTICE",
   "./CONTRIBUTING.md",
-  "./design-tokens.css?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./app.css?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./app.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./analytics.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./bookmark-engine.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./boundary-timer.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./compline-preference.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./daily-office-content.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./daily-office.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./feast-link-preference.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./feast-wikipedia.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./full-office-lifecycle.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./noonday-preference.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./office-schedule.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./office-document.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./pixel-art.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./prayer-calendar.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./prayer-format-preference.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./psalm-preference.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./reading-pack-loader.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./scripture-pack-loader.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./scripture-preference.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./scripture-reading.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./scripture-resolve.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./theme.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./timed-office-onboarding.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./version.js?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./manifest.webmanifest?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./icon.svg?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./apple-touch-icon.png?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./icon-192.png?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
-  "./icon-512.png?v=staging-a74d3500fbf92699aefc4360e9e5251cd081f8d2",
+  "./design-tokens.css?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./app.css?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./app.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./analytics.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./bookmark-engine.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./boundary-timer.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./compline-preference.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./daily-office-content.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./daily-office.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./feast-link-preference.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./feast-wikipedia.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./full-office-lifecycle.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./noonday-preference.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./office-schedule.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./office-document.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./pixel-art.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./prayer-calendar.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./prayer-format-preference.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./psalm-preference.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./reading-pack-loader.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./scripture-pack-loader.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./scripture-preference.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./scripture-reading.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./scripture-resolve.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./theme.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./timed-office-onboarding.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./version.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./manifest.webmanifest?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./icon.svg?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./apple-touch-icon.png?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./icon-192.png?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./icon-512.png?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
   "./assets/og-simple-liturgy.png?v=3",
   "./assets/liturgical-icons/liturgical-calendar/lit-01-solemnity.svg",
   "./assets/liturgical-icons/liturgical-calendar/lit-02-feast.svg",
@@ -142,18 +142,20 @@ const SHELL = [
 ];
 
 self.addEventListener("install", event => {
-  event.waitUntil(
-    caches.open(CACHE)
-      .then(cache => cache.addAll(SHELL))
-      .then(() => self.skipWaiting()),
-  );
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+    const critical = SHELL.filter(url => !/(?:engwebp|eng-kjv)\.json/.test(url));
+    await Promise.all(critical.map(async url => {
+      const response = await fetch(new Request(url, { cache: "reload" }));
+      if (!response.ok) throw new Error(`staging shell ${response.status} for ${url}`);
+      await cache.put(url, response);
+    }));
+    await self.skipWaiting();
+  })());
 });
 
 function previousCachesToKeep(keys) {
-  return keys
-    .filter(key => key.startsWith(CACHE_PREFIX) && key !== CACHE)
-    .sort((left, right) => right.localeCompare(left, undefined, { numeric: true }))
-    .slice(0, 1);
+  return keys.filter(() => false);
 }
 
 self.addEventListener("activate", event => {
@@ -210,8 +212,14 @@ async function fetchAndCache(request) {
 }
 
 async function cacheFirst(request) {
-  const cached = await caches.match(request);
-  return cached || fetchAndCache(request);
+  try {
+    const cache = await caches.open(CACHE);
+    const cached = await cache.match(request);
+    if (cached) return cached;
+  } catch {
+    // Fall through to the network when Cache Storage is unavailable.
+  }
+  return fetchAndCache(request);
 }
 
 async function currentVersionCacheFirst(request, fallback = null) {
@@ -287,6 +295,26 @@ async function rangedPackResponse(request) {
   return new Response(bytes.slice(start, end + 1), { status: 206, headers });
 }
 
+async function stagingNavigation(request) {
+  try {
+    const response = await fetch(request, { cache: "no-store" });
+    if (response.ok) {
+      try {
+        const cache = await caches.open(CACHE);
+        const cacheKey = new URL(request.url);
+        cacheKey.search = "";
+        await cache.put(cacheKey.href, response.clone());
+      } catch {
+        // A fresh response should still render if Cache Storage is unavailable.
+      }
+      return response;
+    }
+  } catch {
+    // The cached shell is the offline copy.
+  }
+  return currentVersionCacheFirst(request, "./");
+}
+
 self.addEventListener("fetch", event => {
   if (event.request.method !== "GET") return;
   const url = new URL(event.request.url);
@@ -298,8 +326,7 @@ self.addEventListener("fetch", event => {
   }
 
   if (event.request.mode === "navigate") {
-    event.waitUntil(refreshCurrentVersionShell(event.request));
-    event.respondWith(currentVersionCacheFirst(event.request, "./"));
+    event.respondWith(stagingNavigation(event.request));
     return;
   }
 

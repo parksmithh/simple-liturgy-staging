@@ -372,7 +372,7 @@ await checkAsync("staging copy is rewritten only at deploy time", async () => {
     const id = stagingBuildId(sha);
     assert(id === `staging-${sha}`, "staging id includes the commit");
     assert(!/^v\d+\.\d+\.\d+/.test(id), "staging id must not look like a production tag");
-    for (const name of ["version.js", "service-worker.js", "analytics.js", "index.html", "privacy.html", "terms.html", "manifest.webmanifest"]) {
+    for (const name of ["version.js", "service-worker.js", "analytics.js", "app.js", "index.html", "privacy.html", "terms.html", "manifest.webmanifest"]) {
       await cp(repoPath(name), join(temp, name));
     }
     await prepareStagingTree(temp, { commit: sha });
@@ -384,6 +384,29 @@ await checkAsync("staging copy is rewritten only at deploy time", async () => {
     assert(worker.includes(`const CACHE = "daily-office-reader-${id}";`), "cache uses the staging id");
     assert(!worker.includes("daily-office-reader-v0.3.148"), "production cache name is not reused");
     assert(worker.includes(`?v=${id}`), "versioned worker urls use the staging id");
+    assert(worker.includes('cache: "reload"'), "staging install bypasses the HTTP cache");
+    assert(worker.includes("async function stagingNavigation"), "staging navigations revalidate on open");
+    assert(worker.includes('fetch(request, { cache: "no-store" })'), "staging navigation bypasses the HTTP cache");
+    assert(worker.includes("skipWaiting"), "staging worker still activates without waiting");
+    assert(worker.includes("clients.claim"), "staging worker still takes control of the open app");
+    assert(worker.includes("keys.filter(() => false)"), "staging does not keep the previous shell cache");
+    assert(!worker.includes("cache.addAll(SHELL)"), "staging install does not wait on the scripture packs");
+    assert(worker.includes("engwebp|eng-kjv"), "scripture packs stay off the staging activation path");
+    const syntax = spawnSync(process.execPath, ["--check", join(temp, "service-worker.js")], { encoding: "utf8" });
+    assert(syntax.status === 0, syntax.stderr || "rewritten staging worker failed to parse");
+    const appSyntax = spawnSync(process.execPath, ["--check", join(temp, "app.js")], { encoding: "utf8" });
+    assert(appSyntax.status === 0, appSyntax.stderr || "rewritten staging app failed to parse");
+    const stagingApp = await readFile(join(temp, "app.js"), "utf8");
+    assert(stagingApp.includes(`register("./service-worker.js?v=${id}"`), "staging registers a worker url for this commit");
+    assert(stagingApp.includes('updateViaCache: "none"'), "staging update checks bypass the HTTP cache");
+    assert(stagingApp.includes('window.addEventListener("pageshow", checkForUpdate)'), "opening the installed app checks for a staging publish");
+    assert(stagingApp.includes("staging-shell"), "a new staging worker reloads onto a fresh document");
+    const committedWorker = await readText("service-worker.js");
+    assert(committedWorker.includes("cache.addAll(SHELL)"), "production install still precaches its shell");
+    assert(!committedWorker.includes("stagingNavigation"), "production worker stays on its own update path");
+    const committedApp = await readText("app.js");
+    assert(committedApp.includes('register("./service-worker.js", { updateViaCache: "none" })'), "production registration stays unversioned");
+    assert(!committedApp.includes("staging-shell"), "production app does not reload as a staging shell");
     const analytics = await readFile(join(temp, "analytics.js"), "utf8");
     assert(!analytics.includes("cloud.umami.is"), "staging omits the Umami script");
     assert(!analytics.includes("dab0bd9b-34dc-4e61-8292-fdecfe97b3cc"), "staging omits the Umami website id");

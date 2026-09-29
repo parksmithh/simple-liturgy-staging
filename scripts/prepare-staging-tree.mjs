@@ -54,6 +54,135 @@ async function walkFiles(root, visitor) {
   await visit(root);
 }
 
+const PRODUCTION_INSTALL = `self.addEventListener("install", event => {
+  event.waitUntil(
+    caches.open(CACHE)
+      .then(cache => cache.addAll(SHELL))
+      .then(() => self.skipWaiting()),
+  );
+});`;
+
+const STAGING_INSTALL = `self.addEventListener("install", event => {
+  event.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+    const critical = SHELL.filter(url => !/(?:engwebp|eng-kjv)\\.json/.test(url));
+    await Promise.all(critical.map(async url => {
+      const response = await fetch(new Request(url, { cache: "reload" }));
+      if (!response.ok) throw new Error(\`staging shell \${response.status} for \${url}\`);
+      await cache.put(url, response);
+    }));
+    await self.skipWaiting();
+  })());
+});`;
+
+const PRODUCTION_PREVIOUS_CACHES = `function previousCachesToKeep(keys) {
+  return keys
+    .filter(key => key.startsWith(CACHE_PREFIX) && key !== CACHE)
+    .sort((left, right) => right.localeCompare(left, undefined, { numeric: true }))
+    .slice(0, 1);
+}`;
+
+const STAGING_PREVIOUS_CACHES = `function previousCachesToKeep(keys) {
+  return keys.filter(() => false);
+}`;
+
+const PRODUCTION_CACHE_FIRST = `async function cacheFirst(request) {
+  const cached = await caches.match(request);
+  return cached || fetchAndCache(request);
+}`;
+
+const STAGING_CACHE_FIRST = `async function cacheFirst(request) {
+  try {
+    const cache = await caches.open(CACHE);
+    const cached = await cache.match(request);
+    if (cached) return cached;
+  } catch {
+    // Fall through to the network when Cache Storage is unavailable.
+  }
+  return fetchAndCache(request);
+}`;
+
+const PRODUCTION_NAVIGATION = `  if (event.request.mode === "navigate") {
+    event.waitUntil(refreshCurrentVersionShell(event.request));
+    event.respondWith(currentVersionCacheFirst(event.request, "./"));
+    return;
+  }`;
+
+const STAGING_NAVIGATION = `  if (event.request.mode === "navigate") {
+    event.respondWith(stagingNavigation(event.request));
+    return;
+  }`;
+
+const STAGING_NAVIGATION_HELPER = `async function stagingNavigation(request) {
+  try {
+    const response = await fetch(request, { cache: "no-store" });
+    if (response.ok) {
+      try {
+        const cache = await caches.open(CACHE);
+        const cacheKey = new URL(request.url);
+        cacheKey.search = "";
+        await cache.put(cacheKey.href, response.clone());
+      } catch {
+        // A fresh response should still render if Cache Storage is unavailable.
+      }
+      return response;
+    }
+  } catch {
+    // The cached shell is the offline copy.
+  }
+  return currentVersionCacheFirst(request, "./");
+}
+
+`;
+
+const PRODUCTION_REGISTRATION = `if ("serviceWorker" in navigator) {
+  let reloading = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (reloading) return;
+    reloading = true;
+    window.location.reload();
+  });
+  navigator.serviceWorker
+    .register("./service-worker.js", { updateViaCache: "none" })
+    .then(registration => {
+      const checkForUpdate = () => {
+        registration.update().catch(() => {});
+      };
+      checkForUpdate();
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) checkForUpdate();
+      });
+    })
+    .catch(() => {});
+}`;
+
+function stagingRegistration(id) {
+  return `if ("serviceWorker" in navigator) {
+  let reloading = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => {
+    if (reloading) return;
+    reloading = true;
+    const next = new URL(window.location.href);
+    next.searchParams.set("staging-shell", String(Date.now()));
+    window.location.replace(next.href);
+  });
+  navigator.serviceWorker
+    .register("./service-worker.js?v=${id}", { updateViaCache: "none" })
+    .then(registration => {
+      const checkForUpdate = () => {
+        registration.update().catch(() => {});
+      };
+      checkForUpdate();
+      document.addEventListener("visibilitychange", () => {
+        if (!document.hidden) checkForUpdate();
+      });
+      window.addEventListener("pageshow", checkForUpdate);
+      window.addEventListener("focus", checkForUpdate);
+    })
+    .catch(() => {});
+}`;
+}
+
 export async function prepareStagingTree(root, { commit }) {
   const id = stagingBuildId(commit);
   const versionPath = join(root, "version.js");
@@ -155,6 +284,23 @@ export async function prepareStagingTree(root, { commit }) {
 
   await writeFile(join(root, "robots.txt"), "User-agent: *\nDisallow: /\n");
 
+  const appPath = join(root, "app.js");
+  const appBefore = await readFile(appPath, "utf8");
+  await writeFile(appPath, replaceOnce(appBefore, PRODUCTION_REGISTRATION, stagingRegistration(id), "app.js service worker registration"));
+
+  let stagedWorker = await readFile(workerPath, "utf8");
+  stagedWorker = replaceOnce(stagedWorker, PRODUCTION_INSTALL, STAGING_INSTALL, "service worker install");
+  stagedWorker = replaceOnce(stagedWorker, PRODUCTION_PREVIOUS_CACHES, STAGING_PREVIOUS_CACHES, "service worker previous caches");
+  stagedWorker = replaceOnce(stagedWorker, PRODUCTION_CACHE_FIRST, STAGING_CACHE_FIRST, "service worker cache first");
+  stagedWorker = replaceOnce(
+    stagedWorker,
+    'self.addEventListener("fetch", event => {',
+    `${STAGING_NAVIGATION_HELPER}self.addEventListener("fetch", event => {`,
+    "service worker navigation helper",
+  );
+  stagedWorker = replaceOnce(stagedWorker, PRODUCTION_NAVIGATION, STAGING_NAVIGATION, "service worker navigation");
+  await writeFile(workerPath, stagedWorker);
+
   const finalVersion = await readFile(versionPath, "utf8");
   if (!finalVersion.includes('export const APP_CHANNEL = "staging"')) {
     throw new Error("staging channel was not written");
@@ -171,6 +317,19 @@ export async function prepareStagingTree(root, { commit }) {
   }
   if (finalWorker.includes(`daily-office-reader-v${appVersion}`)) {
     throw new Error("production cache name remained on the staging copy");
+  }
+  if (!finalWorker.includes('cache: "reload"') || !finalWorker.includes("async function stagingNavigation")) {
+    throw new Error("staging worker does not refresh the installed shell");
+  }
+  if (finalWorker.includes("cache.addAll(SHELL)")) {
+    throw new Error("staging install still waits on the whole shell");
+  }
+  const finalApp = await readFile(appPath, "utf8");
+  if (!finalApp.includes(`register("./service-worker.js?v=${id}"`)) {
+    throw new Error("staging app does not register the commit-specific worker");
+  }
+  if (!finalApp.includes('window.addEventListener("pageshow", checkForUpdate)')) {
+    throw new Error("staging app does not check for an update when the installed app is shown");
   }
   try {
     await stat(join(root, "CNAME"));

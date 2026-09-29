@@ -20,6 +20,8 @@ Fallback when the custom domain is not serving:
 
 The staging footer shows `staging-` plus the full commit sha, then the word Staging. That id is the staging version. It is not a `vX.Y.Z` production tag, and it does not publish https://simpleliturgy.com.
 
+A publish of `main` must update an already-installed staging PWA, not only a normal browser tab. Opening the installed app on https://staging.simpleliturgy.com checks for that publish, and the staging service worker takes control with a cache id that includes the staging commit so the reader shell is the new one. Production at https://simpleliturgy.com is a different origin and does not follow that staging update.
+
 ## Production
 
 Production stays https://simpleliturgy.com. Tag the tip of `main` as `vX.Y.Z` only after the admin's verbal approval. A green staging site is not that approval. Do not push a production tag unless the admin has said to.
