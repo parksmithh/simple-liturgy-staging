@@ -1,9 +1,9 @@
-import { wikipediaUrlForFeast } from "./feast-wikipedia.js?v=staging-afa144ea75866b8c7e12fa5141427b9c28825454";
+import { wikipediaUrlForFeast } from "./feast-wikipedia.js?v=staging-08d214ffd4fadf713d0f4648fad2c13402962ceb";
 import {
   adaptLegacyTimedOffice,
   officeDocumentToViewSections,
-} from "./office-document.js?v=staging-afa144ea75866b8c7e12fa5141427b9c28825454";
-import { scripturePageBodyText } from "./scripture-reading.js?v=staging-afa144ea75866b8c7e12fa5141427b9c28825454";
+} from "./office-document.js?v=staging-08d214ffd4fadf713d0f4648fad2c13402962ceb";
+import { scripturePageBodyText } from "./scripture-reading.js?v=staging-08d214ffd4fadf713d0f4648fad2c13402962ceb";
 
 export function parseBundle(text) {
   const readings = new Map();

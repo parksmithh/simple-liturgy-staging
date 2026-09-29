@@ -1055,7 +1055,10 @@ await checkAsync("scripture preference remaps Simple and Traditional lesson focu
   assert(psalmTokensToCitation("119:1-24") === "Psalm 119:1-24", "ranged psalm tokens keep verses");
   assert(psalmTokensToCitation("21:1-7(8-14)").includes("(8-14)"), "optional psalm verses preserved for resolver");
   assert(psalmTokensToCitation("[59, 60] or 33") === "Psalm 59; Psalm 60", "bracketed or-alternatives take first choice");
-  const webPsalms = applyScriptureToSimpleView(psalmFocus, {
+  // Pin a day whose morning/evening Psalms are each a single ranged chapter (not date-dependent).
+  const singlePsalmDay = "2026-09-28";
+  const singlePsalmFocus = model(bundle, { offset: 0, focus: "PS", focusPage: 0 }, singlePsalmDay, collects);
+  const webPsalms = applyScriptureToSimpleView(singlePsalmFocus, {
     scriptureMode: "web",
     pack: web,
     psalmDisplayMode: "by-time-of-day",
@@ -1072,13 +1075,13 @@ await checkAsync("scripture preference remaps Simple and Traditional lesson focu
     psalmHtml.includes(webPsalms.scripturePages.PS.citation),
     "WEB Psalm focus cite matches the appointed range",
   );
-  const morningOnly = applyScriptureToSimpleView(psalmFocus, {
+  const morningOnly = applyScriptureToSimpleView(singlePsalmFocus, {
     scriptureMode: "web",
     pack: web,
     psalmDisplayMode: "by-time-of-day",
     psalmOffice: "morning",
   });
-  const eveningOnly = applyScriptureToSimpleView(psalmFocus, {
+  const eveningOnly = applyScriptureToSimpleView(singlePsalmFocus, {
     scriptureMode: "web",
     pack: web,
     psalmDisplayMode: "by-time-of-day",
@@ -1187,7 +1190,7 @@ await checkAsync("scripture preference remaps Simple and Traditional lesson focu
     && !paintHtmlCall.includes("effectivePsalmDisplayMode"),
     "overview paint uses the stored Psalm preference, not the scripture force",
   );
-  const togetherWeb = applyScriptureToSimpleView(psalmFocus, {
+  const togetherWeb = applyScriptureToSimpleView(singlePsalmFocus, {
     scriptureMode: "web",
     pack: web,
     psalmDisplayMode: "by-time-of-day",
