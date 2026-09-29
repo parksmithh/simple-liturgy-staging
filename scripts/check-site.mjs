@@ -526,6 +526,24 @@ await checkAsync("versioned assets use APP_VERSION", async () => {
   assert(appJs.includes("controllerchange"), "the reader must reload when a new service worker takes control");
 });
 
+await checkAsync("site footer stays reachable on the reader and in settings", async () => {
+  const css = await readText("app.css");
+  const settingsEnd = indexHtml.indexOf("</main>");
+  const readerAt = indexHtml.indexOf('<section class="reader"');
+  const footerAt = indexHtml.indexOf('<footer class="app-footer">');
+  assert(settingsEnd > 0 && readerAt > settingsEnd, "reader follows the settings page");
+  assert(footerAt > readerAt, "footer follows the reader, outside the hidden settings page");
+  const readerRule = css.match(/\.reader \{[^}]*\}/);
+  assert(readerRule && !/position:\s*fixed/.test(readerRule[0]), "reader stays in document flow above the footer");
+  assert(/height:\s*100svh/.test(readerRule[0]), "reader still fills the first screen");
+  const lockedReader = css.match(/html:not\(\.settings-open\)[^{]*\{[^}]*\}/g) || [];
+  assert(lockedReader.length > 0, "reader surface still has its own page background");
+  assert(
+    lockedReader.every(block => !/overflow:\s*hidden/.test(block) && !/height:\s*100%/.test(block)),
+    "reader page scroll is not locked, so the footer can be reached",
+  );
+});
+
 await checkAsync("iOS PWA avoids black-translucent status bar blur", async () => {
   const indexHtml = await readText("index.html");
   const appCss = await readText("app.css");
