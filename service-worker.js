@@ -1,15 +1,15 @@
-const CACHE = "daily-office-reader-staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923";
+const CACHE = "daily-office-reader-staging-605e8d9b5be13c51b472d5c982a8318788fb1b75";
 const CACHE_PREFIX = "daily-office-reader-";
 const RELEASE_MARKER = `?v=${CACHE.slice(CACHE_PREFIX.length)}`;
 const CONTENT_ROOT = self.registration.scope.endsWith("/web/") ? "../" : "./";
-const PACK_URL = `${CONTENT_ROOT}firmware/circuitpython/readings.active.jsonl?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923`;
-const PACK_INDEX_URL = `${CONTENT_ROOT}firmware/circuitpython/readings.active.idx?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923`;
-const COLLECTS_URL = `${CONTENT_ROOT}data/collects/collects.json?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923`;
-const SCRIPTURE_WEB_URL = `${CONTENT_ROOT}data/scripture/engwebp.json?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923`;
-const SCRIPTURE_KJV_URL = `${CONTENT_ROOT}data/scripture/eng-kjv.json?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923`;
-const RITE_TWO_URL = `${CONTENT_ROOT}data/daily-office/rite-two.json?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923`;
-const FULL_OFFICE_INDEX_URL = "./dor-engine/daily-office-content.index.json?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923";
-const FULL_OFFICE_PACK_URL = "./dor-engine/daily-office-content.active.jsonl?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923";
+const PACK_URL = `${CONTENT_ROOT}firmware/circuitpython/readings.active.jsonl?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75`;
+const PACK_INDEX_URL = `${CONTENT_ROOT}firmware/circuitpython/readings.active.idx?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75`;
+const COLLECTS_URL = `${CONTENT_ROOT}data/collects/collects.json?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75`;
+const SCRIPTURE_WEB_URL = `${CONTENT_ROOT}data/scripture/engwebp.json?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75`;
+const SCRIPTURE_KJV_URL = `${CONTENT_ROOT}data/scripture/eng-kjv.json?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75`;
+const RITE_TWO_URL = `${CONTENT_ROOT}data/daily-office/rite-two.json?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75`;
+const FULL_OFFICE_INDEX_URL = "./dor-engine/daily-office-content.index.json?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75";
+const FULL_OFFICE_PACK_URL = "./dor-engine/daily-office-content.active.jsonl?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75";
 const FULL_OFFICE_CONTENT = [
   RITE_TWO_URL,
   FULL_OFFICE_INDEX_URL,
@@ -31,38 +31,38 @@ const SHELL = [
   "./LICENSE.md",
   "./NOTICE",
   "./CONTRIBUTING.md",
-  "./design-tokens.css?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./app.css?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./app.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./analytics.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./bookmark-engine.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./boundary-timer.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./compline-preference.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./daily-office-content.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./daily-office.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./feast-link-preference.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./feast-wikipedia.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./full-office-lifecycle.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./noonday-preference.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./office-schedule.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./office-document.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./pixel-art.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./prayer-calendar.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./prayer-format-preference.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./psalm-preference.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./reading-pack-loader.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./scripture-pack-loader.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./scripture-preference.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./scripture-reading.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./scripture-resolve.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./theme.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./timed-office-onboarding.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./version.js?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./manifest.webmanifest?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./icon.svg?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./apple-touch-icon.png?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./icon-192.png?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
-  "./icon-512.png?v=staging-e8c2bf49e35e3f9b27f4a2f8af19a28d90bfa923",
+  "./design-tokens.css?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./app.css?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./app.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./analytics.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./bookmark-engine.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./boundary-timer.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./compline-preference.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./daily-office-content.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./daily-office.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./feast-link-preference.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./feast-wikipedia.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./full-office-lifecycle.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./noonday-preference.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./office-schedule.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./office-document.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./pixel-art.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./prayer-calendar.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./prayer-format-preference.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./psalm-preference.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./reading-pack-loader.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./scripture-pack-loader.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./scripture-preference.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./scripture-reading.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./scripture-resolve.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./theme.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./timed-office-onboarding.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./version.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./manifest.webmanifest?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./icon.svg?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./apple-touch-icon.png?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./icon-192.png?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
+  "./icon-512.png?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75",
   "./assets/og-simple-liturgy.png?v=3",
   "./assets/liturgical-icons/liturgical-calendar/lit-01-solemnity.svg",
   "./assets/liturgical-icons/liturgical-calendar/lit-02-feast.svg",
@@ -142,16 +142,9 @@ const SHELL = [
 ];
 
 self.addEventListener("install", event => {
-  event.waitUntil((async () => {
-    const cache = await caches.open(CACHE);
-    const critical = SHELL.filter(url => !/(?:engwebp|eng-kjv)\.json/.test(url));
-    await Promise.all(critical.map(async url => {
-      const response = await fetch(new Request(url, { cache: "reload" }));
-      if (!response.ok) throw new Error(`staging shell ${response.status} for ${url}`);
-      await cache.put(url, response);
-    }));
-    await self.skipWaiting();
-  })());
+  // Take control before any cache work. A failed precache used to reject this
+  // install, so the already-running worker stayed in control forever.
+  event.waitUntil(self.skipWaiting());
 });
 
 function previousCachesToKeep(keys) {
@@ -159,17 +152,28 @@ function previousCachesToKeep(keys) {
 }
 
 self.addEventListener("activate", event => {
-  event.waitUntil(
-    caches.keys()
-      .then(keys => {
-        const keep = new Set([CACHE, ...previousCachesToKeep(keys)]);
-        return Promise.all(keys.filter(key => key.startsWith(CACHE_PREFIX) && !keep.has(key)).map(key => caches.delete(key)));
-      })
-      .then(() => self.clients.claim()),
-  );
+  event.waitUntil((async () => {
+    await self.clients.claim();
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(key => key.startsWith(CACHE_PREFIX) && key !== CACHE).map(key => caches.delete(key)));
+    const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    for (const client of windows) {
+      if (typeof client.navigate !== "function") continue;
+      const next = new URL(client.url);
+      // A new URL cannot be satisfied by the iOS standalone page snapshot.
+      // Do not await navigate(): waiting for that load inside activate deadlocks,
+      // because the load cannot finish until this worker finishes activating.
+      next.searchParams.set("staging-shell", String(Date.now()));
+      client.navigate(next.href).catch(() => {});
+    }
+  })());
 });
 
 self.addEventListener("message", event => {
+  if (event.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+    return;
+  }
   if (event.data?.type === "CACHE_COMPLETE_READING_PACK") {
     event.waitUntil(
       caches.match(PACK_URL).then(cached => cached || caches.open(CACHE).then(cache => cache.add(PACK_URL))),
@@ -296,6 +300,9 @@ async function rangedPackResponse(request) {
 }
 
 async function stagingNavigation(request) {
+  // iOS can leave the newer worker waiting after install. This navigation
+  // asks it to take control so the open app does not stay on the old shell.
+  self.registration.waiting?.postMessage({ type: "SKIP_WAITING" });
   try {
     const response = await fetch(request, { cache: "no-store" });
     if (response.ok) {

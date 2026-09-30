@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 
+import { spawnSync } from "node:child_process";
 import { readdir, readFile, stat, writeFile } from "node:fs/promises";
 import { join, relative, sep } from "node:path";
 import { pathToFileURL } from "node:url";
@@ -63,16 +64,9 @@ const PRODUCTION_INSTALL = `self.addEventListener("install", event => {
 });`;
 
 const STAGING_INSTALL = `self.addEventListener("install", event => {
-  event.waitUntil((async () => {
-    const cache = await caches.open(CACHE);
-    const critical = SHELL.filter(url => !/(?:engwebp|eng-kjv)\\.json/.test(url));
-    await Promise.all(critical.map(async url => {
-      const response = await fetch(new Request(url, { cache: "reload" }));
-      if (!response.ok) throw new Error(\`staging shell \${response.status} for \${url}\`);
-      await cache.put(url, response);
-    }));
-    await self.skipWaiting();
-  })());
+  // Take control before any cache work. A failed precache used to reject this
+  // install, so the already-running worker stayed in control forever.
+  event.waitUntil(self.skipWaiting());
 });`;
 
 const PRODUCTION_PREVIOUS_CACHES = `function previousCachesToKeep(keys) {
@@ -113,7 +107,49 @@ const STAGING_NAVIGATION = `  if (event.request.mode === "navigate") {
     return;
   }`;
 
+const PRODUCTION_ACTIVATE = `self.addEventListener("activate", event => {
+  event.waitUntil(
+    caches.keys()
+      .then(keys => {
+        const keep = new Set([CACHE, ...previousCachesToKeep(keys)]);
+        return Promise.all(keys.filter(key => key.startsWith(CACHE_PREFIX) && !keep.has(key)).map(key => caches.delete(key)));
+      })
+      .then(() => self.clients.claim()),
+  );
+});`;
+
+const STAGING_ACTIVATE = `self.addEventListener("activate", event => {
+  event.waitUntil((async () => {
+    await self.clients.claim();
+    const keys = await caches.keys();
+    await Promise.all(keys.filter(key => key.startsWith(CACHE_PREFIX) && key !== CACHE).map(key => caches.delete(key)));
+    const windows = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
+    for (const client of windows) {
+      if (typeof client.navigate !== "function") continue;
+      const next = new URL(client.url);
+      // A new URL cannot be satisfied by the iOS standalone page snapshot.
+      // Do not await navigate(): waiting for that load inside activate deadlocks,
+      // because the load cannot finish until this worker finishes activating.
+      next.searchParams.set("staging-shell", String(Date.now()));
+      client.navigate(next.href).catch(() => {});
+    }
+  })());
+});`;
+
+const PRODUCTION_MESSAGE = `self.addEventListener("message", event => {
+  if (event.data?.type === "CACHE_COMPLETE_READING_PACK") {`;
+
+const STAGING_MESSAGE = `self.addEventListener("message", event => {
+  if (event.data?.type === "SKIP_WAITING") {
+    self.skipWaiting();
+    return;
+  }
+  if (event.data?.type === "CACHE_COMPLETE_READING_PACK") {`;
+
 const STAGING_NAVIGATION_HELPER = `async function stagingNavigation(request) {
+  // iOS can leave the newer worker waiting after install. This navigation
+  // asks it to take control so the open app does not stay on the old shell.
+  self.registration.waiting?.postMessage({ type: "SKIP_WAITING" });
   try {
     const response = await fetch(request, { cache: "no-store" });
     if (response.ok) {
@@ -156,22 +192,30 @@ const PRODUCTION_REGISTRATION = `if ("serviceWorker" in navigator) {
     .catch(() => {});
 }`;
 
-function stagingRegistration(id) {
+function stagingRegistration() {
   return `if ("serviceWorker" in navigator) {
   let reloading = false;
-  navigator.serviceWorker.addEventListener("controllerchange", () => {
+  const reloadFreshShell = () => {
     if (reloading) return;
     reloading = true;
     const next = new URL(window.location.href);
     next.searchParams.set("staging-shell", String(Date.now()));
     window.location.replace(next.href);
-  });
+  };
+  navigator.serviceWorker.addEventListener("controllerchange", reloadFreshShell);
+  const nudgeWaitingWorker = registration => {
+    registration.waiting?.postMessage({ type: "SKIP_WAITING" });
+  };
   navigator.serviceWorker
-    .register("./service-worker.js?v=${id}", { updateViaCache: "none" })
+    .register("./service-worker.js", { updateViaCache: "none" })
     .then(registration => {
       const checkForUpdate = () => {
-        registration.update().catch(() => {});
+        // GitHub Pages caches service-worker.js for ten minutes. Fetch it
+        // with no-store before the update check so the next publish is visible.
+        fetch("./service-worker.js", { cache: "no-store" }).catch(() => {});
+        registration.update().then(() => nudgeWaitingWorker(registration)).catch(() => nudgeWaitingWorker(registration));
       };
+      nudgeWaitingWorker(registration);
       checkForUpdate();
       document.addEventListener("visibilitychange", () => {
         if (!document.hidden) checkForUpdate();
@@ -183,7 +227,30 @@ function stagingRegistration(id) {
 }`;
 }
 
-export async function prepareStagingTree(root, { commit }) {
+export function stagingShellMarkers(commits) {
+  const markers = [];
+  const seen = new Set();
+  for (const commit of commits) {
+    let marker;
+    try {
+      marker = `?v=${stagingBuildId(commit)}`;
+    } catch {
+      continue;
+    }
+    if (seen.has(marker)) continue;
+    seen.add(marker);
+    markers.push(marker);
+  }
+  return markers;
+}
+
+function listCommits(cwd) {
+  const result = spawnSync("git", ["rev-list", "HEAD"], { cwd, encoding: "utf8" });
+  if (result.status !== 0 || !result.stdout) return [];
+  return result.stdout.split("\n").map(line => line.trim().toLowerCase()).filter(line => /^[0-9a-f]{40}$/.test(line));
+}
+
+export async function prepareStagingTree(root, { commit, priorCommits } = {}) {
   const id = stagingBuildId(commit);
   const versionPath = join(root, "version.js");
   const versionBefore = await readFile(versionPath, "utf8");
@@ -284,12 +351,30 @@ export async function prepareStagingTree(root, { commit }) {
 
   await writeFile(join(root, "robots.txt"), "User-agent: *\nDisallow: /\n");
 
+  const discovered = priorCommits ?? listCommits(root);
+  const commits = discovered.length >= 2 ? discovered : listCommits(process.cwd());
+  if (!priorCommits && commits.length < 2) {
+    throw new Error("staging publish needs the full main history so an already-installed PWA can take this shell");
+  }
+  const markers = stagingShellMarkers(priorCommits ?? commits);
+  if (markers.length) {
+    const indexPath = join(root, "index.html");
+    const anchor = '<meta charset="utf-8">';
+    let html = await readFile(indexPath, "utf8");
+    if (!html.includes(anchor)) throw new Error("index.html has no charset meta for the staging shell markers");
+    const comment = `<!--\n${markers.join("\n")}\n-->`;
+    html = html.replace(anchor, `${anchor}\n  ${comment}`);
+    await writeFile(indexPath, html);
+  }
+
   const appPath = join(root, "app.js");
   const appBefore = await readFile(appPath, "utf8");
-  await writeFile(appPath, replaceOnce(appBefore, PRODUCTION_REGISTRATION, stagingRegistration(id), "app.js service worker registration"));
+  await writeFile(appPath, replaceOnce(appBefore, PRODUCTION_REGISTRATION, stagingRegistration(), "app.js service worker registration"));
 
   let stagedWorker = await readFile(workerPath, "utf8");
   stagedWorker = replaceOnce(stagedWorker, PRODUCTION_INSTALL, STAGING_INSTALL, "service worker install");
+  stagedWorker = replaceOnce(stagedWorker, PRODUCTION_ACTIVATE, STAGING_ACTIVATE, "service worker activate");
+  stagedWorker = replaceOnce(stagedWorker, PRODUCTION_MESSAGE, STAGING_MESSAGE, "service worker skip waiting message");
   stagedWorker = replaceOnce(stagedWorker, PRODUCTION_PREVIOUS_CACHES, STAGING_PREVIOUS_CACHES, "service worker previous caches");
   stagedWorker = replaceOnce(stagedWorker, PRODUCTION_CACHE_FIRST, STAGING_CACHE_FIRST, "service worker cache first");
   stagedWorker = replaceOnce(
@@ -318,15 +403,24 @@ export async function prepareStagingTree(root, { commit }) {
   if (finalWorker.includes(`daily-office-reader-v${appVersion}`)) {
     throw new Error("production cache name remained on the staging copy");
   }
-  if (!finalWorker.includes('cache: "reload"') || !finalWorker.includes("async function stagingNavigation")) {
-    throw new Error("staging worker does not refresh the installed shell");
+  if (!finalWorker.includes("event.waitUntil(self.skipWaiting())") || !finalWorker.includes("async function stagingNavigation")) {
+    throw new Error("staging worker does not take control of the installed shell");
+  }
+  if (!finalWorker.includes('type === "SKIP_WAITING"') || !finalWorker.includes("client.navigate")) {
+    throw new Error("staging worker does not activate a waiting install on open");
   }
   if (finalWorker.includes("cache.addAll(SHELL)")) {
     throw new Error("staging install still waits on the whole shell");
   }
   const finalApp = await readFile(appPath, "utf8");
-  if (!finalApp.includes(`register("./service-worker.js?v=${id}"`)) {
-    throw new Error("staging app does not register the commit-specific worker");
+  if (!finalApp.includes('register("./service-worker.js", { updateViaCache: "none" })')) {
+    throw new Error("staging app must keep the installed service worker URL");
+  }
+  if (finalApp.includes("service-worker.js?v=")) {
+    throw new Error("staging app must not register a new service worker URL");
+  }
+  if (!finalApp.includes("registration.waiting?.postMessage({ type: \"SKIP_WAITING\" })")) {
+    throw new Error("staging app does not activate a worker that iOS left waiting");
   }
   if (!finalApp.includes('window.addEventListener("pageshow", checkForUpdate)')) {
     throw new Error("staging app does not check for an update when the installed app is shown");

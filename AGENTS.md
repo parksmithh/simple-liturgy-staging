@@ -20,7 +20,7 @@ Fallback when the custom domain is not serving:
 
 The staging footer shows `staging-` plus the full commit sha, then the word Staging. That id is the staging version. It is not a `vX.Y.Z` production tag, and it does not publish https://simpleliturgy.com.
 
-A publish of `main` must update an already-installed staging PWA, not only a normal browser tab. Opening the installed app on https://staging.simpleliturgy.com checks for that publish, and the staging service worker takes control with a cache id that includes the staging commit so the reader shell is the new one. Production at https://simpleliturgy.com is a different origin and does not follow that staging update.
+A publish of `main` must update an already-installed staging PWA, not only a normal browser tab. The installed app keeps controlling `service-worker.js`. Opening it fetches that same script, the new worker takes control immediately and navigates to the latest shell, and the document includes earlier staging ids so a worker from a previous publish can store the new shell. Production at https://simpleliturgy.com is a different origin and does not follow that staging update.
 
 ## Production
 
