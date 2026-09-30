@@ -1,5 +1,5 @@
-import { complineServiceAt } from "./compline-preference.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75";
-import { noondayServiceAt } from "./noonday-preference.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75";
+import { complineServiceAt } from "./compline-preference.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce";
+import { noondayServiceAt } from "./noonday-preference.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce";
 
 export function localIsoDate(date = new Date()) {
   const year = date.getFullYear();

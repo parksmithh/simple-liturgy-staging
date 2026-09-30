@@ -356,7 +356,7 @@ h1 { margin: 0; font: var(--font-weight-semibold) var(--type-app-title) var(--fo
 .focus .label { font-size: var(--type-reader-focus-label); }
 .focus-cite { margin-top: 7px; max-width: 100%; font-size: var(--type-reader-focus-citation); font-weight: var(--font-weight-reader-content); line-height: 1.05; }
 .overview-focus-hint, .focus-continue-hint { position: absolute; z-index: 3; bottom: max(14px, calc(env(safe-area-inset-bottom) + 6px)); left: 50%; color: var(--ink); font-size: var(--type-reader-hint); font-weight: var(--font-weight-regular); letter-spacing: .08em; opacity: .72; pointer-events: none; transform: translateX(-50%); white-space: nowrap; }
-.install-tooltip-active .overview-focus-hint { display: none; }
+html.install-tooltip-active:not(.installed-pwa):not([data-standalone]) .overview-focus-hint { display: none; }
 .reader.focus-mode .install-tooltip { display: none !important; }
 .prayer-focus { justify-content: center; cursor: default; }
 .prayer-content { width: 100%; }
@@ -897,12 +897,30 @@ dialog button { width: 100%; border: 1px solid var(--dialog-border); border-radi
     padding: 0;
     background: var(--paper);
   }
+  /* 100vh in an installed app is the large viewport. The page locks
+     overflow, so the bottom band — where Tap to focus / Continue is
+     pinned — sits past the visible webview. Size the shell to the
+     measured visible height. 100dvh is the pre-measure fallback and
+     stays inside that clip; 100vh does not. */
+  :root[data-standalone]:not(.settings-open),
+  :root[data-standalone]:not(.settings-open) body,
+  html.installed-pwa:not(.settings-open),
+  html.installed-pwa:not(.settings-open) body {
+    min-height: 0;
+    height: var(--standalone-viewport-height, 100dvh);
+    max-height: var(--standalone-viewport-height, 100dvh);
+  }
+  :root[data-standalone] .reader,
   .installed-pwa .reader {
-    position: relative;
-    inset: auto;
-    width: 100%;
-    min-height: 100vh;
-    height: 100vh;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: auto;
+    left: 0;
+    width: auto;
+    min-height: 0;
+    height: var(--standalone-viewport-height, 100dvh);
+    max-height: var(--standalone-viewport-height, 100dvh);
   }
   .device-screen {
     position: absolute;

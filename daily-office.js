@@ -2,7 +2,7 @@ import {
   OFFICE_DOCUMENT_SCHEMA,
   structuralPageAnchor,
   validateOfficeDocument,
-} from "./office-document.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75";
+} from "./office-document.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce";
 
 const OFFICE_SOURCE = Object.freeze({
   morning: {

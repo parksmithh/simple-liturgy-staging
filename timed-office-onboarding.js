@@ -1,5 +1,5 @@
-import { COMPLINE_END_HOUR } from "./compline-preference.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75";
-import { localIsoDate, scheduledServiceAt } from "./office-schedule.js?v=staging-605e8d9b5be13c51b472d5c982a8318788fb1b75";
+import { COMPLINE_END_HOUR } from "./compline-preference.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce";
+import { localIsoDate, scheduledServiceAt } from "./office-schedule.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce";
 
 const DISMISSAL_KEY_PREFIX = "simple-liturgy.timed-office-onboarding";
 

@@ -144,6 +144,13 @@ function overviewSectionButtons(html) {
   return [...html.matchAll(/<button class="reading\b[^>]*>/g)].map(match => match[0]);
 }
 
+function assertReaderHints(view, label) {
+  const overview = screenHtml({ ...view, focus: null, focusPage: 0 });
+  const focused = screenHtml({ ...view, focus: view.focusOrder[0], focusPage: 0 });
+  assert(overview.includes('class="overview-focus-hint">Tap to focus'), `${label} overview shows Tap to focus`);
+  assert(focused.includes('class="focus-continue-hint">Continue'), `${label} focus shows Continue`);
+}
+
 function assertOverviewStartsFocusAtBeginning(html, label) {
   const buttons = overviewSectionButtons(html);
   assert(buttons.length > 0, `${label} overview must render section buttons`);
@@ -585,6 +592,29 @@ await checkAsync("reader footer is Tap to focus or Continue on one screen", asyn
     /\.overview-focus-hint,\s*\.focus-continue-hint \{[^}]*position:\s*absolute/.test(css),
     "Tap to focus and Continue stay pinned on the reader",
   );
+  assert(
+    /\.overview-focus-hint,\s*\.focus-continue-hint \{[^}]*color:\s*var\(--ink\)/.test(css),
+    "reader footer uses ink, which stays light on dark paper",
+  );
+  assert(
+    !/\.installed-pwa \.reader \{[^}]*height:\s*100vh/.test(css),
+    "installed reader must not use 100vh, which clips the footer past the standalone webview",
+  );
+  assert(
+    /:root\[data-standalone\] \.reader,\s*\.installed-pwa \.reader \{[^}]*height:\s*var\(--standalone-viewport-height,\s*100dvh\)/.test(css),
+    "standalone reader is pinned to the measured visible height",
+  );
+  assert(
+    /html\.install-tooltip-active:not\(\.installed-pwa\):not\(\[data-standalone\]\) \.overview-focus-hint \{[^}]*display:\s*none/.test(css),
+    "only the browser install tip hides Tap to focus",
+  );
+  assert(indexHtml.includes("--standalone-viewport-height"), "standalone shell measures the visible height before paint");
+  assert(indexHtml.includes("window.innerHeight"), "visible height comes from innerHeight");
+  const tokens = await readText("design-tokens.css");
+  assert(
+    /:root\[data-theme="dark"\][\s\S]*--screen-ink:\s*var\(--color-bwr-paper\)/.test(tokens),
+    "dark theme ink stays the light paper color",
+  );
 });
 
 await checkAsync("iOS PWA avoids black-translucent status bar blur", async () => {
@@ -860,6 +890,7 @@ await checkAsync("overview section taps start focus at the beginning in every of
 
   const simple = model(bundle, idle, today, collects);
   assertOverviewStartsFocusAtBeginning(screenHtml(simple), "Simple Prayer");
+  assertReaderHints(simple, "Simple Prayer");
   assert(simple.focusOrder[0] === "PRAYER", "Simple Prayer begins at Opening Prayer");
 
   for (const service of ["morning", "evening"]) {
@@ -875,6 +906,7 @@ await checkAsync("overview section taps start focus at the beginning in every of
     const view = model(bundle, idle, today, collects, { service, officeDocument: document });
     assert(!view.error, `${service}: ${view.error}`);
     assertOverviewStartsFocusAtBeginning(screenHtml(view), service);
+    assertReaderHints(view, service);
     const laterSection = view.focusOrder.find(key => key !== view.focusOrder[0]);
     const started = handle(idle, laterSection, { focusOrder: view.focusOrder });
     assert(started.focus === view.focusOrder[0], `${service} section tap must start at ${view.focusOrder[0]}`);
@@ -885,6 +917,7 @@ await checkAsync("overview section taps start focus at the beginning in every of
     const view = model(bundle, idle, today, collects, { service });
     assert(!view.error, `${service}: ${view.error}`);
     assertOverviewStartsFocusAtBeginning(screenHtml(view), service);
+    assertReaderHints(view, service);
     const laterSection = view.focusOrder.find(key => key !== view.focusOrder[0]);
     const started = handle(idle, laterSection, { focusOrder: view.focusOrder });
     assert(started.focus === view.focusOrder[0], `${service} section tap must start at ${view.focusOrder[0]}`);
