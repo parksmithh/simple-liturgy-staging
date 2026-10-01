@@ -293,6 +293,7 @@ const { resolveCitation, unavailableNote } = await import("../scripture-resolve.
 const {
   applyScriptureToSimpleView,
   applyScriptureToTimedOffice,
+  formatVerseFragment,
   formatVerseMarker,
   paginateScriptureVersesByFit,
   psalmTokensToCitation,
@@ -1060,12 +1061,17 @@ check("product copy no longer claims Scripture is absent", () => {
 });
 
 check("scripture verse markers encode split pages", () => {
-  assert(formatVerseMarker(7) === "7", "complete verse");
-  assert(formatVerseMarker(7, { starts: true, ends: false }) === `7${VERSE_ELLIPSIS}`, "starts only");
-  assert(formatVerseMarker(7, { starts: false, ends: true }) === `${VERSE_ELLIPSIS}7`, "ends only");
-  assert(formatVerseMarker(7, { starts: false, ends: false }) === `${VERSE_ELLIPSIS}7${VERSE_ELLIPSIS}`, "middle");
-  const html = numberedLiturgicalTextHtml(`${VERSE_ELLIPSIS}7${VERSE_ELLIPSIS} middle fragment`);
-  assert(html.includes(`${VERSE_ELLIPSIS}7${VERSE_ELLIPSIS}`), "HTML keeps middle marker");
+  assert(formatVerseMarker(7) === "7", "verse number stays clean");
+  assert(formatVerseFragment("For God so loved the world", { starts: true, ends: false })
+    === `For God so loved the world${VERSE_ELLIPSIS}`, "split start puts ellipsis on text");
+  assert(formatVerseFragment("that he gave his one and only son", { starts: false, ends: true })
+    === `${VERSE_ELLIPSIS}that he gave his one and only son`, "continuation puts ellipsis on text");
+  assert(formatVerseFragment("middle fragment", { starts: false, ends: false })
+    === `${VERSE_ELLIPSIS}middle fragment${VERSE_ELLIPSIS}`, "middle fragment has both ellipses");
+  const html = numberedLiturgicalTextHtml(`16 ${VERSE_ELLIPSIS}that he gave his one and only son`);
+  assert(html.includes("noonday-psalm-number") && html.includes("16"), "continuation keeps a plain verse number");
+  assert(html.includes(`${VERSE_ELLIPSIS}that he gave`), "continuation ellipsis stays in the verse text");
+  assert(!html.includes(`${VERSE_ELLIPSIS}16`) && !html.includes(`16${VERSE_ELLIPSIS}`), "ellipsis is not on the number");
 });
 
 await checkAsync("scripture packs resolve appointed lesson samples", async () => {
@@ -1091,7 +1097,11 @@ await checkAsync("scripture packs resolve appointed lesson samples", async () =>
     return words <= 12;
   });
   assert(pages.length > 1, "auto-fit yields multiple pages");
-  assert(pages.some(page => page.includes(VERSE_ELLIPSIS)), "split pages keep ellipsis markers");
+  assert(pages.some(page => page.includes(VERSE_ELLIPSIS)), "split pages keep ellipsis on verse text");
+  assert(
+    pages.some(page => /^\d+\s/.test(page.split(/\n{2,}/).find(block => block.includes(VERSE_ELLIPSIS)) || "")),
+    "split continuation keeps a plain leading verse number",
+  );
   assert(call > 0, "fit callback used");
   assert(versesToPageText(webIsaiah.verses).includes("1 "), "full page text includes verse 1");
 
@@ -1109,6 +1119,19 @@ await checkAsync("scripture packs resolve appointed lesson samples", async () =>
   assert(!(web.books.MAT?.["1"]?.["23"] || "").includes("Isaiah 7:14"), "WEB Matthew 1:23 omits cross-reference");
   const ingestSource = await readText("scripts/ingest-scripture.mjs");
   assert(ingestSource.includes("<x\\b"), "ingest stripMarkup removes USFX <x> cross-refs");
+  assert(ingestSource.includes("<d\\b") || ingestSource.includes("<d\\b["), "ingest skips USFX <d> descriptive titles");
+  assert(ingestSource.includes("skipDescriptive"), "ingest closes verses before Psalm 119 acrostic titles");
+  const psa128 = web.books.PSA?.["119"]?.["128"] || "";
+  assert(psa128.includes("false way"), "WEB Psalm 119:128 keeps verse text");
+  assert(!/\bPE\b/.test(psa128), "WEB omits Psalm 119 PE acrostic title from verse text");
+  assert(!/\bAYIN\b/.test(web.books.PSA?.["119"]?.["120"] || ""), "WEB omits AYIN acrostic title");
+  const psa136 = web.books.PSA?.["119"]?.["136"] || "";
+  assert(psa136.includes("Streams of tears"), "WEB Psalm 119:136 keeps verse text");
+  assert(!/\bTZADHE\b/.test(psa136), "WEB omits Psalm 119 TZADHE acrostic title from verse text");
+  assert(!/\bQOPH\b/.test(web.books.PSA?.["119"]?.["144"] || ""), "WEB omits QOPH acrostic title");
+  assert(!/SIN AND SHIN/.test(web.books.PSA?.["119"]?.["160"] || ""), "WEB omits SIN AND SHIN acrostic title");
+  const css = await readText("app.css");
+  assert(css.includes("min-width: 4ch"), "scripture verse numbers reserve 4ch");
 
   const ecclus = resolveCitation("Ecclus. 2:1-11", kjv);
   assert(ecclus.ok, `Ecclus. alias: ${ecclus.reason || "ok"}`);

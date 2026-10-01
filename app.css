@@ -423,7 +423,7 @@ html.install-tooltip-active:not(.installed-pwa):not([data-standalone]) .overview
 }
 .scripture-lesson-text .noonday-psalm-number {
   flex: 0 0 auto;
-  min-width: 3ch;
+  min-width: 4ch;
   text-align: left;
 }
 .scripture-lesson-text .noonday-call-response {

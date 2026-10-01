@@ -1,15 +1,15 @@
-const CACHE = "daily-office-reader-staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce";
+const CACHE = "daily-office-reader-staging-da6bec082ba98852b73da7afb5a3a37052a32380";
 const CACHE_PREFIX = "daily-office-reader-";
 const RELEASE_MARKER = `?v=${CACHE.slice(CACHE_PREFIX.length)}`;
 const CONTENT_ROOT = self.registration.scope.endsWith("/web/") ? "../" : "./";
-const PACK_URL = `${CONTENT_ROOT}firmware/circuitpython/readings.active.jsonl?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce`;
-const PACK_INDEX_URL = `${CONTENT_ROOT}firmware/circuitpython/readings.active.idx?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce`;
-const COLLECTS_URL = `${CONTENT_ROOT}data/collects/collects.json?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce`;
-const SCRIPTURE_WEB_URL = `${CONTENT_ROOT}data/scripture/engwebp.json?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce`;
-const SCRIPTURE_KJV_URL = `${CONTENT_ROOT}data/scripture/eng-kjv.json?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce`;
-const RITE_TWO_URL = `${CONTENT_ROOT}data/daily-office/rite-two.json?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce`;
-const FULL_OFFICE_INDEX_URL = "./dor-engine/daily-office-content.index.json?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce";
-const FULL_OFFICE_PACK_URL = "./dor-engine/daily-office-content.active.jsonl?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce";
+const PACK_URL = `${CONTENT_ROOT}firmware/circuitpython/readings.active.jsonl?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380`;
+const PACK_INDEX_URL = `${CONTENT_ROOT}firmware/circuitpython/readings.active.idx?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380`;
+const COLLECTS_URL = `${CONTENT_ROOT}data/collects/collects.json?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380`;
+const SCRIPTURE_WEB_URL = `${CONTENT_ROOT}data/scripture/engwebp.json?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380`;
+const SCRIPTURE_KJV_URL = `${CONTENT_ROOT}data/scripture/eng-kjv.json?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380`;
+const RITE_TWO_URL = `${CONTENT_ROOT}data/daily-office/rite-two.json?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380`;
+const FULL_OFFICE_INDEX_URL = "./dor-engine/daily-office-content.index.json?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380";
+const FULL_OFFICE_PACK_URL = "./dor-engine/daily-office-content.active.jsonl?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380";
 const FULL_OFFICE_CONTENT = [
   RITE_TWO_URL,
   FULL_OFFICE_INDEX_URL,
@@ -31,38 +31,38 @@ const SHELL = [
   "./LICENSE.md",
   "./NOTICE",
   "./CONTRIBUTING.md",
-  "./design-tokens.css?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./app.css?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./app.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./analytics.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./bookmark-engine.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./boundary-timer.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./compline-preference.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./daily-office-content.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./daily-office.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./feast-link-preference.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./feast-wikipedia.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./full-office-lifecycle.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./noonday-preference.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./office-schedule.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./office-document.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./pixel-art.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./prayer-calendar.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./prayer-format-preference.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./psalm-preference.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./reading-pack-loader.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./scripture-pack-loader.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./scripture-preference.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./scripture-reading.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./scripture-resolve.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./theme.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./timed-office-onboarding.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./version.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./manifest.webmanifest?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./icon.svg?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./apple-touch-icon.png?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./icon-192.png?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
-  "./icon-512.png?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce",
+  "./design-tokens.css?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./app.css?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./app.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./analytics.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./bookmark-engine.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./boundary-timer.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./compline-preference.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./daily-office-content.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./daily-office.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./feast-link-preference.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./feast-wikipedia.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./full-office-lifecycle.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./noonday-preference.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./office-schedule.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./office-document.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./pixel-art.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./prayer-calendar.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./prayer-format-preference.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./psalm-preference.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./reading-pack-loader.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./scripture-pack-loader.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./scripture-preference.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./scripture-reading.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./scripture-resolve.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./theme.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./timed-office-onboarding.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./version.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./manifest.webmanifest?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./icon.svg?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./apple-touch-icon.png?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./icon-192.png?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
+  "./icon-512.png?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380",
   "./assets/og-simple-liturgy.png?v=3",
   "./assets/liturgical-icons/liturgical-calendar/lit-01-solemnity.svg",
   "./assets/liturgical-icons/liturgical-calendar/lit-02-feast.svg",

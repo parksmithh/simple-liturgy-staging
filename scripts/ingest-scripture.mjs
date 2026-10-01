@@ -84,6 +84,9 @@ function stripMarkup(fragment) {
     .replace(/<x\b[\s\S]*?<\/x>/gi, "")
     .replace(/<note\b[\s\S]*?<\/note>/gi, "")
     .replace(/<fig\b[\s\S]*?<\/fig>/gi, "")
+    // Psalm 119 acrostic letter titles ("PE", "AYIN", …) live in <d> and must
+    // not append to the preceding verse when <ve/> falls inside that block.
+    .replace(/<d\b[\s\S]*?<\/d>/gi, "")
     .replace(/<[^>]+>/g, "")
     .replace(/&lt;/g, "<")
     .replace(/&gt;/g, ">")
@@ -101,6 +104,7 @@ function parseUsfx(xml) {
   let chapter = 0;
   let verse = 0;
   let collecting = false;
+  let skipDescriptive = false;
   let buf = "";
 
   const flush = () => {
@@ -129,11 +133,13 @@ function parseUsfx(xml) {
       if (bookId && FRONT_MATTER.has(bookId)) bookId = null;
       chapter = 0;
       verse = 0;
+      skipDescriptive = false;
       continue;
     }
     if (tok.startsWith("</book")) {
       flush();
       bookId = null;
+      skipDescriptive = false;
       continue;
     }
     if (!bookId) continue;
@@ -142,6 +148,22 @@ function parseUsfx(xml) {
       const idMatch = tok.match(/\bid="(\d+)"/);
       chapter = idMatch ? Number(idMatch[1]) : 0;
       verse = 0;
+      skipDescriptive = false;
+      continue;
+    }
+    // Descriptive titles (Psalm 119 acrostic letters) often wrap the verse-end
+    // marker; close the verse first and ignore the title body.
+    if (/^<d\b/i.test(tok)) {
+      flush();
+      skipDescriptive = true;
+      continue;
+    }
+    if (/^<\/d\b/i.test(tok)) {
+      skipDescriptive = false;
+      continue;
+    }
+    if (skipDescriptive) {
+      if (tok.startsWith("<ve")) collecting = false;
       continue;
     }
     if (tok.startsWith("<v ")) {

@@ -1,4 +1,4 @@
-import { createBoundaryTimer } from "./boundary-timer.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce";
+import { createBoundaryTimer } from "./boundary-timer.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380";
 
 const STORAGE_KEY = "simple-liturgy.compline-enabled";
 const COMPLINE_START_HOUR = 21;

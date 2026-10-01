@@ -1,29 +1,37 @@
-import { editionForMode } from "./scripture-preference.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce";
-import { resolveCitation, unavailableNote } from "./scripture-resolve.js?v=staging-3c34cf2d9f218a2338d63fa67fd4b5336fc798ce";
+import { editionForMode } from "./scripture-preference.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380";
+import { resolveCitation, unavailableNote } from "./scripture-resolve.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380";
 
-/** Unicode ellipsis used in split-verse markers (7… / …7 / …7…). */
+/** Unicode ellipsis used when a verse is split across pages. */
 export const VERSE_ELLIPSIS = "\u2026";
 
 /**
- * Format a verse number for a page fragment.
- * - starts && ends → "7"
- * - starts && !ends → "7…"
- * - !starts && ends → "…7"
- * - !starts && !ends → "…7…"
+ * Verse number for a page fragment. Continuation state is encoded on the text
+ * (e.g. "16 For God…" / "16 …that he gave"), not on the number.
  */
-export function formatVerseMarker(verse, { starts = true, ends = true } = {}) {
-  const n = String(verse);
-  if (starts && ends) return n;
-  if (starts && !ends) return `${n}${VERSE_ELLIPSIS}`;
-  if (!starts && ends) return `${VERSE_ELLIPSIS}${n}`;
-  return `${VERSE_ELLIPSIS}${n}${VERSE_ELLIPSIS}`;
+export function formatVerseMarker(verse) {
+  return String(verse);
+}
+
+/**
+ * Attach leading/trailing ellipsis to a verse fragment's text.
+ * - starts && ends → unchanged
+ * - starts && !ends → "For God so loved the world…"
+ * - !starts && ends → "…that he gave his one and only son"
+ * - !starts && !ends → "…middle fragment…"
+ */
+export function formatVerseFragment(text, { starts = true, ends = true } = {}) {
+  let fragment = String(text || "").trim();
+  if (!fragment) return "";
+  if (!starts) fragment = `${VERSE_ELLIPSIS}${fragment}`;
+  if (!ends) fragment = `${fragment}${VERSE_ELLIPSIS}`;
+  return fragment;
 }
 
 export function versesToPageText(verses) {
   return (verses || [])
     .map(verse => {
       if (verse?.kind === "heading") return String(verse.text || "").trim();
-      return `${formatVerseMarker(verse.verse)} ${verse.text}`.trim();
+      return `${formatVerseMarker(verse.verse)} ${formatVerseFragment(verse.text)}`.trim();
     })
     .filter(Boolean)
     .join("\n\n");
@@ -168,7 +176,7 @@ export function simplePsalmCitation(psalms, {
 /**
  * Pack verse fragments into pages that fill available height.
  * `fits(pageText, pageIndex)` returns true when the candidate fits.
- * Mid-verse splits keep the verse marker with leading/trailing ellipsis.
+ * Mid-verse splits keep a clean verse number and put ellipsis on the text.
  * @returns {{ pages: string[], pageHeadings: (string|null)[] }}
  *   pageHeadings[i] is the chapter title in force at the start of page i
  *   (leading heading on that page, else the chapter continued from prior pages).
@@ -204,8 +212,8 @@ export function paginateScriptureVersesByFit(verses, fits) {
     }
 
     const words = String(verse.text || "").trim().split(/\s+/).filter(Boolean);
+    const marker = formatVerseMarker(verse.verse);
     if (words.length === 0) {
-      const marker = formatVerseMarker(verse.verse);
       const next = [...blocks, { marker, text: "" }];
       if (blocks.length && !tryFit(next)) commit();
       blocks.push({ marker, text: "" });
@@ -217,11 +225,10 @@ export function paginateScriptureVersesByFit(verses, fits) {
     while (start < words.length) {
       let bestEnd = start;
       for (let end = start + 1; end <= words.length; end += 1) {
-        const marker = formatVerseMarker(verse.verse, {
+        const fragment = formatVerseFragment(words.slice(start, end).join(" "), {
           starts: isStart,
           ends: end === words.length,
         });
-        const fragment = words.slice(start, end).join(" ");
         if (tryFit([...blocks, { marker, text: fragment }])) bestEnd = end;
         else break;
       }
@@ -237,8 +244,11 @@ export function paginateScriptureVersesByFit(verses, fits) {
 
       const ends = bestEnd === words.length;
       blocks.push({
-        marker: formatVerseMarker(verse.verse, { starts: isStart, ends }),
-        text: words.slice(start, bestEnd).join(" "),
+        marker,
+        text: formatVerseFragment(words.slice(start, bestEnd).join(" "), {
+          starts: isStart,
+          ends,
+        }),
       });
       start = bestEnd;
       isStart = false;
