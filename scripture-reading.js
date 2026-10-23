@@ -1,5 +1,5 @@
-import { editionForMode } from "./scripture-preference.js?v=staging-b77cace0c8357079ceb4ae20fdddab29b7c2dcc5";
-import { resolveCitation, unavailableNote } from "./scripture-resolve.js?v=staging-b77cace0c8357079ceb4ae20fdddab29b7c2dcc5";
+import { editionForMode } from "./scripture-preference.js?v=staging-c5744f6edb6c4a6bc144deea655b461a571a6347";
+import { resolveCitation, unavailableNote } from "./scripture-resolve.js?v=staging-c5744f6edb6c4a6bc144deea655b461a571a6347";
 
 /** Unicode ellipsis used when a verse is split across pages. */
 export const VERSE_ELLIPSIS = "\u2026";

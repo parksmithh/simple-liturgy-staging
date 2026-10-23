@@ -440,10 +440,6 @@ html.install-tooltip-active:not(.installed-pwa):not([data-standalone]) .overview
 .continuation-ellipsis { display: inline-block !important; padding-right: .14em; font-kerning: none; letter-spacing: -.14em; white-space: nowrap; }
 .warning { display: inline-block; margin-top: 6px; padding: 2px 4px; background: var(--red); color: var(--paper); font-size: var(--type-reader-warning); }
 
-.reader-art-filters { position: absolute; width: 0; height: 0; overflow: hidden; }
-.reader-art-ink-color { flood-color: var(--screen-ink); }
-.reader-art-red-color { flood-color: var(--red); }
-
 .pixel-art-stack {
   position: absolute;
   z-index: 1;
@@ -461,7 +457,6 @@ html.install-tooltip-active:not(.installed-pwa):not([data-standalone]) .overview
   width: clamp(30px, 8vw, 40px);
   height: auto;
   aspect-ratio: 1 / 1;
-  filter: url("#reader-art-palette");
   object-fit: contain;
   image-rendering: auto;
 }

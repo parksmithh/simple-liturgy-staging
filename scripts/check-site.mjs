@@ -286,7 +286,7 @@ const {
 } = await import("../bookmark-engine.js");
 const { composeDailyOffice } = await import("../daily-office.js");
 const { parseReadingIndex } = await import("../reading-pack-loader.js");
-const { ALL_ICON_ASSET_PATHS } = await import("../pixel-art.js");
+const { ALL_ICON_ASSET_PATHS, liturgicalPixelIsRed } = await import("../pixel-art.js");
 const { scheduledServiceAt, officePeriodAt } = await import("../office-schedule.js");
 const { buildPrayerCalendar } = await import("../prayer-calendar.js");
 const { resolveCitation, unavailableNote } = await import("../scripture-resolve.js");
@@ -718,6 +718,21 @@ await checkAsync("icon catalog files exist", async () => {
     if (!await exists(path)) absent.push(`./${path}`);
   }
   assert(absent.length === 0, `missing icons: ${absent.join(", ")}`);
+});
+
+await checkAsync("header icons recolor red without the shared SVG filter", async () => {
+  assert(liturgicalPixelIsRed(208, 0, 0), "a red pixel stays red");
+  assert(liturgicalPixelIsRed(255, 0, 0), "pure red stays red");
+  assert(!liturgicalPixelIsRed(0, 0, 0), "black stays ink");
+  assert(!liturgicalPixelIsRed(255, 255, 255), "white stays ink");
+  assert(!liturgicalPixelIsRed(128, 128, 128), "gray stays ink");
+  assert(!liturgicalPixelIsRed(180, 170, 170), "a slightly warm gray stays ink");
+  assert(liturgicalPixelIsRed(200, 40, 40), "a dull red stays red");
+  const css = await readText("app.css");
+  const painter = await readText("pixel-art.js");
+  assert(!indexHtml.includes("reader-art-palette"), "the shared SVG filter is gone");
+  assert(!css.includes('filter: url("#reader-art-palette")'), "header icons must not use the SVG filter");
+  assert(painter.includes("drawRecoloredIcon"), "header icons are drawn from the embedded png");
 });
 
 await checkAsync("reading pack, index, and collects can load today", async () => {

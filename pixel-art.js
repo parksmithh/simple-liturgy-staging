@@ -261,14 +261,103 @@ function iconLabelFor(name) {
   return name.replace(/^season-/, "").replaceAll("-", " ");
 }
 
-function createSourceIcon(name) {
-  const image = document.createElement("img");
-  image.setAttribute("class", "pixel-art");
-  image.setAttribute("src", new URL(iconAssetPathFor(name), import.meta.url).href);
-  image.setAttribute("alt", `${iconLabelFor(name)} liturgical icon`);
-  image.setAttribute("draggable", "false");
-  image.setAttribute("decoding", "async");
-  return image;
+const PNG_HREF = /href="(data:image\/png;base64,[^"]+)"/;
+const pngImages = new Map();
+
+// Same split the old SVG filter used: alpha = 3R − 1.5G − 1.5B, then the
+// discrete step that treats anything at least 0.2 as red and the rest as ink.
+export function liturgicalPixelIsRed(red, green, blue) {
+  let chroma = (3 * red - 1.5 * green - 1.5 * blue) / 255;
+  if (chroma < 0) chroma = 0;
+  if (chroma > 1) chroma = 1;
+  return chroma >= 0.2;
+}
+
+function paletteColor(expression) {
+  const probe = document.createElement("span");
+  probe.hidden = true;
+  probe.style.color = expression;
+  document.documentElement.append(probe);
+  const resolved = getComputedStyle(probe).color;
+  probe.remove();
+  const match = resolved.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+  if (!match) return [23, 23, 22];
+  return [Number(match[1]), Number(match[2]), Number(match[3])];
+}
+
+function currentPalette() {
+  const ink = paletteColor("var(--screen-ink)");
+  const red = paletteColor("var(--red)");
+  return { ink, red, key: `${ink.join(".")}/${red.join(".")}` };
+}
+
+function loadLiturgicalPng(assetPath) {
+  const cached = pngImages.get(assetPath);
+  if (cached) return cached;
+  const pending = fetch(new URL(assetPath, import.meta.url))
+    .then(response => {
+      if (!response.ok) throw new Error(`icon ${response.status}`);
+      return response.text();
+    })
+    .then(svg => {
+      const href = svg.match(PNG_HREF)?.[1];
+      if (!href) throw new Error(`icon ${assetPath} has no embedded png`);
+      const image = new Image();
+      image.decoding = "sync";
+      image.src = href;
+      return image.decode().then(() => image);
+    });
+  pngImages.set(assetPath, pending);
+  pending.catch(() => {
+    if (pngImages.get(assetPath) === pending) pngImages.delete(assetPath);
+  });
+  return pending;
+}
+
+function drawRecoloredIcon(canvas, image, ink, red) {
+  const source = document.createElement("canvas");
+  source.width = image.naturalWidth;
+  source.height = image.naturalHeight;
+  const sourceContext = source.getContext("2d", { willReadFrequently: true });
+  sourceContext.drawImage(image, 0, 0);
+  const pixels = sourceContext.getImageData(0, 0, source.width, source.height);
+  const data = pixels.data;
+  for (let index = 0; index < data.length; index += 4) {
+    if (data[index + 3] === 0) continue;
+    const color = liturgicalPixelIsRed(data[index], data[index + 1], data[index + 2]) ? red : ink;
+    data[index] = color[0];
+    data[index + 1] = color[1];
+    data[index + 2] = color[2];
+  }
+  sourceContext.putImageData(pixels, 0, 0);
+
+  const size = Math.max(source.width, source.height);
+  canvas.width = size;
+  canvas.height = size;
+  const context = canvas.getContext("2d");
+  context.clearRect(0, 0, size, size);
+  context.imageSmoothingEnabled = false;
+  context.drawImage(source, Math.floor((size - source.width) / 2), Math.floor((size - source.height) / 2));
+}
+
+function createIconCanvas(name) {
+  const canvas = document.createElement("canvas");
+  canvas.className = "pixel-art";
+  canvas.setAttribute("role", "img");
+  canvas.setAttribute("aria-label", `${iconLabelFor(name)} liturgical icon`);
+  canvas.dataset.asset = iconAssetPathFor(name);
+  return canvas;
+}
+
+function paintIconCanvas(canvas) {
+  const assetPath = canvas.dataset.asset;
+  return loadLiturgicalPng(assetPath).then(image => {
+    if (canvas.dataset.asset !== assetPath || !canvas.isConnected) return;
+    const { ink, red } = currentPalette();
+    drawRecoloredIcon(canvas, image, ink, red);
+  }).catch(() => {
+    // Leave the tile blank. A filtered <img> is what iOS was painting as a black square.
+  });
 }
 
 export function renderPixelArtStack(container, view) {
@@ -281,11 +370,21 @@ export function renderPixelArtStack(container, view) {
     return true;
   });
   const iconKey = [...seenAssets].join("\n");
-  if (container.dataset.icons === iconKey) return;
-  const icons = distinctNames.map(createSourceIcon);
-  container.dataset.count = String(icons.length);
+  const palette = currentPalette();
+  if (container.dataset.icons === iconKey && container.dataset.palette === palette.key && container.childElementCount === distinctNames.length) return;
+  const sameIcons = container.dataset.icons === iconKey && container.childElementCount === distinctNames.length;
+  container.dataset.count = String(distinctNames.length);
   container.dataset.icons = iconKey;
-  container.replaceChildren(...icons);
+  container.dataset.palette = palette.key;
+  const icons = sameIcons
+    ? [...container.children]
+    : distinctNames.map(createIconCanvas);
+  if (!sameIcons) container.replaceChildren(...icons);
+  icons.forEach((canvas, index) => {
+    canvas.dataset.asset = iconAssetPathFor(distinctNames[index]);
+    canvas.setAttribute("aria-label", `${iconLabelFor(distinctNames[index])} liturgical icon`);
+    void paintIconCanvas(canvas);
+  });
 }
 
 export function paintPixelArtStack(screen, view, previousArtStack = null) {

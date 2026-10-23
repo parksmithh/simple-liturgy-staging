@@ -3,6 +3,8 @@
 <head>
   <meta charset="utf-8">
   <!--
+?v=staging-c5744f6edb6c4a6bc144deea655b461a571a6347
+?v=staging-192500eca3bc7d54f54e51e5814bbf3333d756e9
 ?v=staging-b77cace0c8357079ceb4ae20fdddab29b7c2dcc5
 ?v=staging-e590bc79232f9f3cef323f23d782062249b9b3dc
 ?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380
@@ -149,39 +151,14 @@
   <meta name="twitter:image" content="https://simpleliturgy.com/assets/og-simple-liturgy.png?v=3">
   <meta name="twitter:image:alt" content="Simplified Simple Liturgy reader showing Psalms, Old Testament, New Testament, and Gospel citations">
   <title>Simple Liturgy | BCP 1979 Daily Office Reader</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=staging-b77cace0c8357079ceb4ae20fdddab29b7c2dcc5">
-  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=staging-b77cace0c8357079ceb4ae20fdddab29b7c2dcc5">
-  <link rel="icon" href="./icon.svg?v=staging-b77cace0c8357079ceb4ae20fdddab29b7c2dcc5" type="image/svg+xml">
-  <link rel="stylesheet" href="./design-tokens.css?v=staging-b77cace0c8357079ceb4ae20fdddab29b7c2dcc5">
-  <link rel="stylesheet" href="./app.css?v=staging-b77cace0c8357079ceb4ae20fdddab29b7c2dcc5">
+  <link rel="manifest" href="./manifest.webmanifest?v=staging-c5744f6edb6c4a6bc144deea655b461a571a6347">
+  <link rel="apple-touch-icon" sizes="180x180" href="./apple-touch-icon.png?v=staging-c5744f6edb6c4a6bc144deea655b461a571a6347">
+  <link rel="icon" href="./icon.svg?v=staging-c5744f6edb6c4a6bc144deea655b461a571a6347" type="image/svg+xml">
+  <link rel="stylesheet" href="./design-tokens.css?v=staging-c5744f6edb6c4a6bc144deea655b461a571a6347">
+  <link rel="stylesheet" href="./app.css?v=staging-c5744f6edb6c4a6bc144deea655b461a571a6347">
 </head>
 <body>
   <div class="ios-pwa-status-strip" aria-hidden="true"></div>
-  <svg class="reader-art-filters" width="0" height="0" aria-hidden="true" focusable="false">
-    <defs>
-      <filter id="reader-art-palette" x="-10%" y="-10%" width="120%" height="120%" color-interpolation-filters="sRGB">
-        <feColorMatrix in="SourceGraphic" type="matrix" values="
-          0 0 0 0 0
-          0 0 0 0 0
-          0 0 0 0 0
-          3 -1.5 -1.5 0 0
-        " result="red-chroma"/>
-        <feComponentTransfer in="red-chroma" result="red-class">
-          <feFuncA type="discrete" tableValues="0 1 1 1 1"/>
-        </feComponentTransfer>
-        <feComposite in="red-class" in2="SourceAlpha" operator="in" result="red-mask"/>
-        <feComposite in="SourceAlpha" in2="red-mask" operator="out" result="ink-mask"/>
-        <feFlood class="reader-art-ink-color" result="ink-color"/>
-        <feComposite in="ink-color" in2="ink-mask" operator="in" result="ink-layer"/>
-        <feFlood class="reader-art-red-color" result="red-color"/>
-        <feComposite in="red-color" in2="red-mask" operator="in" result="red-layer"/>
-        <feMerge>
-          <feMergeNode in="ink-layer"/>
-          <feMergeNode in="red-layer"/>
-        </feMerge>
-      </filter>
-    </defs>
-  </svg>
   <main class="app-shell" id="settings-page" hidden>
     <header class="app-bar">
       <div>
@@ -518,6 +495,6 @@
     </form>
   </dialog>
 
-  <script type="module" src="./app.js?v=staging-b77cace0c8357079ceb4ae20fdddab29b7c2dcc5"></script>
+  <script type="module" src="./app.js?v=staging-c5744f6edb6c4a6bc144deea655b461a571a6347"></script>
 </body>
 </html>
