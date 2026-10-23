@@ -1,6 +1,6 @@
-export const APP_VERSION = "0.3.168";
+export const APP_VERSION = "0.3.169";
 export const APP_CHANNEL = "staging";
 
 export function appVersionLabel() {
-  return `Version staging-da6bec082ba98852b73da7afb5a3a37052a32380 · Staging`;
+  return `Version staging-b77cace0c8357079ceb4ae20fdddab29b7c2dcc5 · Staging`;
 }

@@ -293,11 +293,13 @@ const { resolveCitation, unavailableNote } = await import("../scripture-resolve.
 const {
   applyScriptureToSimpleView,
   applyScriptureToTimedOffice,
-  formatVerseFragment,
+  decorateScriptureVerses,
   formatVerseMarker,
   paginateScriptureVersesByFit,
   psalmTokensToCitation,
   scriptureLessonPages,
+  scripturePageBodyText,
+  scripturePageShowsCitation,
   VERSE_ELLIPSIS,
   versesToPageText,
   withChapterHeadings,
@@ -1061,17 +1063,19 @@ check("product copy no longer claims Scripture is absent", () => {
 });
 
 check("scripture verse markers encode split pages", () => {
-  assert(formatVerseMarker(7) === "7", "verse number stays clean");
-  assert(formatVerseFragment("For God so loved the world", { starts: true, ends: false })
-    === `For God so loved the world${VERSE_ELLIPSIS}`, "split start puts ellipsis on text");
-  assert(formatVerseFragment("that he gave his one and only son", { starts: false, ends: true })
-    === `${VERSE_ELLIPSIS}that he gave his one and only son`, "continuation puts ellipsis on text");
-  assert(formatVerseFragment("middle fragment", { starts: false, ends: false })
-    === `${VERSE_ELLIPSIS}middle fragment${VERSE_ELLIPSIS}`, "middle fragment has both ellipses");
-  const html = numberedLiturgicalTextHtml(`16 ${VERSE_ELLIPSIS}that he gave his one and only son`);
-  assert(html.includes("noonday-psalm-number") && html.includes("16"), "continuation keeps a plain verse number");
-  assert(html.includes(`${VERSE_ELLIPSIS}that he gave`), "continuation ellipsis stays in the verse text");
-  assert(!html.includes(`${VERSE_ELLIPSIS}16`) && !html.includes(`16${VERSE_ELLIPSIS}`), "ellipsis is not on the number");
+  assert(formatVerseMarker(7) === "7", "complete verse number stays clean");
+  assert(formatVerseMarker(7, { starts: true, ends: false }) === `7${VERSE_ELLIPSIS}`, "split start puts ellipsis after the number");
+  assert(formatVerseMarker(7, { starts: false, ends: true }) === `${VERSE_ELLIPSIS}7`, "continuation puts ellipsis before the number");
+  assert(formatVerseMarker(7, { starts: false, ends: false }) === `${VERSE_ELLIPSIS}7${VERSE_ELLIPSIS}`, "middle fragment has both ellipses");
+  const html = numberedLiturgicalTextHtml(`${VERSE_ELLIPSIS}16 that he gave his one and only son`);
+  assert(html.includes(`>${VERSE_ELLIPSIS}16<`), "continuation ellipsis stays on the verse number");
+  assert(html.includes("that he gave his one and only son"), "continuation text has no ellipsis");
+  assert(!html.includes(`${VERSE_ELLIPSIS}that`), "ellipsis is not inside the verse text");
+  assert(scripturePageShowsCitation({ focus: "OT", chapterHeadings: true, page: 0 }), "multi-chapter lesson page 1 keeps its citation");
+  assert(!scripturePageShowsCitation({ focus: "PS", chapterHeadings: true, page: 0 }), "multi-chapter Psalms omit the combined citation");
+  assert(!scripturePageShowsCitation({ focus: "NT", chapterHeadings: true, page: 1 }), "continuation pages omit the citation");
+  assert(scripturePageShowsCitation({ focus: "GS", chapterHeadings: false, page: 0 }), "single-chapter page 1 keeps its citation");
+  assert(appJs.includes("scripturePageShowsCitation"), "scripture measurement reserves the citation the page will show");
 });
 
 await checkAsync("scripture packs resolve appointed lesson samples", async () => {
@@ -1097,10 +1101,17 @@ await checkAsync("scripture packs resolve appointed lesson samples", async () =>
     return words <= 12;
   });
   assert(pages.length > 1, "auto-fit yields multiple pages");
-  assert(pages.some(page => page.includes(VERSE_ELLIPSIS)), "split pages keep ellipsis on verse text");
+  assert(pages.some(page => page.includes(VERSE_ELLIPSIS)), "split pages keep an ellipsis");
   assert(
-    pages.some(page => /^\d+\s/.test(page.split(/\n{2,}/).find(block => block.includes(VERSE_ELLIPSIS)) || "")),
-    "split continuation keeps a plain leading verse number",
+    pages.some(page => new RegExp(`(?:^|\\n\\n)(?:${VERSE_ELLIPSIS})?\\d+${VERSE_ELLIPSIS}?\\s`).test(page)),
+    "split ellipsis stays on the verse number",
+  );
+  assert(
+    !pages.some(page => page.includes(`${VERSE_ELLIPSIS}`) && page.split(/\n{2,}/).some(block => {
+      const body = block.replace(/^(?:\u2026)?\d+(?:\u2026)?\s+/, "");
+      return body.includes(VERSE_ELLIPSIS);
+    })),
+    "split ellipsis is not inside the verse text",
   );
   assert(call > 0, "fit callback used");
   assert(versesToPageText(webIsaiah.verses).includes("1 "), "full page text includes verse 1");
@@ -1144,6 +1155,138 @@ await checkAsync("scripture packs resolve appointed lesson samples", async () =>
   assert(workerSource.includes("data/scripture/engwebp.json"), "SW installs WEB pack");
   assert(workerSource.includes("data/scripture/eng-kjv.json"), "SW installs KJV pack");
   assert(workerSource.includes("scripture-resolve.js"), "SW shells scripture modules");
+});
+
+await checkAsync("page breaks keep every verse character once", async () => {
+  const web = JSON.parse(await readText("data/scripture/engwebp.json"));
+  const kjv = JSON.parse(await readText("data/scripture/eng-kjv.json"));
+  const bundle = parseBundle(await readText("firmware/circuitpython/readings.active.jsonl"));
+  const citations = new Set([
+    "Leviticus 4:1-21",
+    "Mark 3:20-35",
+    "Isaiah 40:1-31",
+    "Psalm 119",
+    "John 3:16",
+    "John 7:53--8:11",
+    "Hebrews 11:32--12:2",
+    "Luke 20:41--21:4",
+    "Genesis 1:1-31",
+    "Wisdom 1:1-16",
+  ]);
+  for (const reading of bundle.readings.values()) {
+    for (const lesson of reading.lessons || []) citations.add(String(lesson));
+    const psalms = psalmTokensToCitation(
+      [reading.psalms_morning, reading.psalms_evening].flat().filter(Boolean).join(", "),
+    );
+    if (psalms) citations.add(psalms);
+  }
+
+  const seen = new Set();
+  let groups = 0;
+  let splits = 0;
+  const budgets = [5, 17, 48];
+
+  const normalize = value => String(value || "").normalize("NFC").replace(/\s+/g, " ").trim();
+  const same = (label, actual, expected) => {
+    if (actual === expected) return;
+    let index = 0;
+    const limit = Math.min(actual.length, expected.length);
+    while (index < limit && actual[index] === expected[index]) index += 1;
+    const slice = text => JSON.stringify(text.slice(Math.max(0, index - 24), index + 36));
+    throw new Error(`${label} diverges at ${index}: expected ${slice(expected)} got ${slice(actual)}`);
+  };
+  const recover = (pages, headings) => {
+    const markers = [];
+    for (const page of pages) {
+      for (const block of String(page || "").split(/\n{2,}/)) {
+        const line = block.trim();
+        if (!line || headings.has(line)) continue;
+        const match = line.match(/^(\u2026|\.\.\.)?(\d+[a-z]?)(\u2026|\.\.\.)?(?:\s+([\s\S]*))?$/iu);
+        assert(match, `unparsed scripture block: ${line.slice(0, 90)}`);
+        const text = match[4] || "";
+        assert(!text.includes(VERSE_ELLIPSIS), `ellipsis leaked into verse text: ${line.slice(0, 90)}`);
+        markers.push({ verse: match[2], starts: !match[1], ends: !match[3], text });
+      }
+    }
+    return markers;
+  };
+  const assertConserved = (label, verses, pages, pageHeadings) => {
+    const headings = new Set(
+      verses.filter(verse => verse?.kind === "heading").map(verse => String(verse.text || "").trim()),
+    );
+    const checkMarkers = markerList => {
+      let cursor = 0;
+      for (const verse of verses) {
+        if (verse?.kind === "heading") continue;
+        const number = String(verse.verse);
+        const parts = [];
+        assert(markerList[cursor]?.verse === number, `${label} missing verse ${number}`);
+        while (cursor < markerList.length && markerList[cursor].verse === number) {
+          parts.push(markerList[cursor]);
+          cursor += 1;
+          if (parts.at(-1).ends) break;
+        }
+        assert(parts.at(-1)?.ends, `${label} verse ${number} does not finish`);
+        parts.forEach((part, index) => {
+          const starts = index === 0;
+          const ends = index === parts.length - 1;
+          assert(
+            part.starts === starts && part.ends === ends,
+            `${label} verse ${number} ellipsis is not on the number at the page transition`,
+          );
+        });
+        same(label, normalize(parts.map(part => part.text).join(" ")), normalize(verse.text));
+        if (parts.length > 1) splits += 1;
+        for (const character of String(verse.text || "")) {
+          if (character.codePointAt(0) > 127) seen.add(character);
+        }
+      }
+      assert(cursor === markerList.length, `${label} has leftover page text`);
+    };
+    checkMarkers(recover(pages, headings));
+    if (headings.size) {
+      const stripped = pages.map((_, index) => scripturePageBodyText({
+        pages,
+        pageHeadings,
+        chapterHeadings: true,
+      }, index));
+      checkMarkers(recover(stripped, headings));
+    }
+    groups += 1;
+  };
+
+  for (const [packName, pack] of [["WEB", web], ["KJV", kjv]]) {
+    for (const citation of citations) {
+      const resolved = resolveCitation(citation, pack);
+      if (!resolved.ok) continue;
+      const decorated = decorateScriptureVerses(resolved.verses);
+      for (const budget of budgets) {
+        const fitted = paginateScriptureVersesByFit(decorated.verses, candidate => (
+          candidate.replaceAll(VERSE_ELLIPSIS, "").split(/\s+/).filter(Boolean).length <= budget
+        ));
+        assert(fitted.pages.length > 0, `${packName} ${citation} produced no pages`);
+        assertConserved(`${packName} ${citation} @${budget}`, decorated.verses, fitted.pages, fitted.pageHeadings);
+      }
+    }
+  }
+
+  assert(groups > 1000, `covered too few reading layouts: ${groups}`);
+  assert(splits > 0, "expected some verses to split across pages");
+  for (const character of ["’", "“", "”", "—", "¶", "æ"]) {
+    assert(seen.has(character), `pagination never saw special character ${character}`);
+  }
+
+  const john = resolveCitation("John 3:16", web);
+  const split = paginateScriptureVersesByFit(john.verses, candidate => (
+    candidate.replaceAll(VERSE_ELLIPSIS, "").split(/\s+/).filter(Boolean).length <= 4
+  ));
+  assert(split.pages.length >= 3, "John 3:16 splits into a middle fragment");
+  assert(split.pages[0].startsWith(`16${VERSE_ELLIPSIS} `), "opening fragment ellipsis follows the number");
+  assert(split.pages.at(-1).startsWith(`${VERSE_ELLIPSIS}16 `), "closing fragment ellipsis precedes the number");
+  assert(
+    split.pages.slice(1, -1).every(page => page.startsWith(`${VERSE_ELLIPSIS}16${VERSE_ELLIPSIS} `)),
+    "middle fragment ellipsis flanks the number",
+  );
 });
 
 await checkAsync("scripture preference remaps Simple and Traditional lesson focus", async () => {

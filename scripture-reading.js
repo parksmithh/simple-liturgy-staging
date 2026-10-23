@@ -1,40 +1,48 @@
-import { editionForMode } from "./scripture-preference.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380";
-import { resolveCitation, unavailableNote } from "./scripture-resolve.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380";
+import { editionForMode } from "./scripture-preference.js?v=staging-b77cace0c8357079ceb4ae20fdddab29b7c2dcc5";
+import { resolveCitation, unavailableNote } from "./scripture-resolve.js?v=staging-b77cace0c8357079ceb4ae20fdddab29b7c2dcc5";
 
 /** Unicode ellipsis used when a verse is split across pages. */
 export const VERSE_ELLIPSIS = "\u2026";
 
 /**
- * Verse number for a page fragment. Continuation state is encoded on the text
- * (e.g. "16 For God…" / "16 …that he gave"), not on the number.
+ * Verse number for a page fragment. The ellipsis sits on the number, at the
+ * side where the verse crosses the page:
+ * - starts && ends → "7"
+ * - starts && !ends → "7…" (continues onto the next page)
+ * - !starts && ends → "…7" (continued from the previous page)
+ * - !starts && !ends → "…7…" (a middle fragment)
  */
-export function formatVerseMarker(verse) {
-  return String(verse);
-}
-
-/**
- * Attach leading/trailing ellipsis to a verse fragment's text.
- * - starts && ends → unchanged
- * - starts && !ends → "For God so loved the world…"
- * - !starts && ends → "…that he gave his one and only son"
- * - !starts && !ends → "…middle fragment…"
- */
-export function formatVerseFragment(text, { starts = true, ends = true } = {}) {
-  let fragment = String(text || "").trim();
-  if (!fragment) return "";
-  if (!starts) fragment = `${VERSE_ELLIPSIS}${fragment}`;
-  if (!ends) fragment = `${fragment}${VERSE_ELLIPSIS}`;
-  return fragment;
+export function formatVerseMarker(verse, { starts = true, ends = true } = {}) {
+  const n = String(verse);
+  if (starts && ends) return n;
+  if (starts && !ends) return `${n}${VERSE_ELLIPSIS}`;
+  if (!starts && ends) return `${VERSE_ELLIPSIS}${n}`;
+  return `${VERSE_ELLIPSIS}${n}${VERSE_ELLIPSIS}`;
 }
 
 export function versesToPageText(verses) {
   return (verses || [])
     .map(verse => {
       if (verse?.kind === "heading") return String(verse.text || "").trim();
-      return `${formatVerseMarker(verse.verse)} ${formatVerseFragment(verse.text)}`.trim();
+      const text = String(verse.text || "").trim();
+      return `${formatVerseMarker(verse.verse)} ${text}`.trim();
     })
     .filter(Boolean)
     .join("\n\n");
+}
+
+/**
+ * Whether a Simple Prayer scripture page shows the citation above the body.
+ * Multi-chapter lessons still show it on page 1. Multi-chapter Psalms name
+ * each Psalm in the body instead, and continuation pages use the label only.
+ * Height measurement has to reserve this same citation. Hiding it while
+ * measuring lets the last lines of the page paint under the screen edge,
+ * and those lines are not repeated on the next page.
+ */
+export function scripturePageShowsCitation({ focus, chapterHeadings = false, page = 0 } = {}) {
+  if (page > 0) return false;
+  if (chapterHeadings && focus === "PS") return false;
+  return true;
 }
 
 /** Display titles for USFX / OSIS book ids used in scripture packs. */
@@ -173,10 +181,29 @@ export function simplePsalmCitation(psalms, {
   return psalmTokensToCitation([psalms.morning, psalms.evening].filter(Boolean).join(", "));
 }
 
+/** Non-whitespace runs in `text`, as [start, end) indexes into that string. */
+function whitespaceWordSpans(text) {
+  const spans = [];
+  const pattern = /\S+/g;
+  let match = pattern.exec(text);
+  while (match) {
+    spans.push([match.index, match.index + match[0].length]);
+    match = pattern.exec(text);
+  }
+  return spans;
+}
+
+/** Exact slice of source words [start, end), including the spaces between them. */
+function sliceWords(text, spans, start, end) {
+  if (end <= start) return "";
+  return text.slice(spans[start][0], spans[end - 1][1]);
+}
+
 /**
  * Pack verse fragments into pages that fill available height.
  * `fits(pageText, pageIndex)` returns true when the candidate fits.
- * Mid-verse splits keep a clean verse number and put ellipsis on the text.
+ * Mid-verse splits keep the original characters in order and put the
+ * ellipsis on the verse number.
  * @returns {{ pages: string[], pageHeadings: (string|null)[] }}
  *   pageHeadings[i] is the chapter title in force at the start of page i
  *   (leading heading on that page, else the chapter continued from prior pages).
@@ -211,9 +238,10 @@ export function paginateScriptureVersesByFit(verses, fits) {
       continue;
     }
 
-    const words = String(verse.text || "").trim().split(/\s+/).filter(Boolean);
-    const marker = formatVerseMarker(verse.verse);
-    if (words.length === 0) {
+    const source = String(verse.text || "").trim();
+    const spans = whitespaceWordSpans(source);
+    if (spans.length === 0) {
+      const marker = formatVerseMarker(verse.verse);
       const next = [...blocks, { marker, text: "" }];
       if (blocks.length && !tryFit(next)) commit();
       blocks.push({ marker, text: "" });
@@ -222,14 +250,15 @@ export function paginateScriptureVersesByFit(verses, fits) {
 
     let start = 0;
     let isStart = true;
-    while (start < words.length) {
+    while (start < spans.length) {
       let bestEnd = start;
-      for (let end = start + 1; end <= words.length; end += 1) {
-        const fragment = formatVerseFragment(words.slice(start, end).join(" "), {
+      for (let end = start + 1; end <= spans.length; end += 1) {
+        const marker = formatVerseMarker(verse.verse, {
           starts: isStart,
-          ends: end === words.length,
+          ends: end === spans.length,
         });
-        if (tryFit([...blocks, { marker, text: fragment }])) bestEnd = end;
+        const text = sliceWords(source, spans, start, end);
+        if (tryFit([...blocks, { marker, text }])) bestEnd = end;
         else break;
       }
 
@@ -240,15 +269,19 @@ export function paginateScriptureVersesByFit(verses, fits) {
         }
         // Empty page still cannot fit the next word — emit it to guarantee progress.
         bestEnd = start + 1;
+      } else if (bestEnd < spans.length) {
+        // Dropping the trailing ellipsis can make the finished verse shorter
+        // than the candidate that just failed. Take the whole remainder when
+        // that shorter marker actually fits.
+        const marker = formatVerseMarker(verse.verse, { starts: isStart, ends: true });
+        const text = sliceWords(source, spans, start, spans.length);
+        if (tryFit([...blocks, { marker, text }])) bestEnd = spans.length;
       }
 
-      const ends = bestEnd === words.length;
+      const ends = bestEnd === spans.length;
       blocks.push({
-        marker,
-        text: formatVerseFragment(words.slice(start, bestEnd).join(" "), {
-          starts: isStart,
-          ends,
-        }),
+        marker: formatVerseMarker(verse.verse, { starts: isStart, ends }),
+        text: sliceWords(source, spans, start, bestEnd),
       });
       start = bestEnd;
       isStart = false;

@@ -1,9 +1,9 @@
-import { wikipediaUrlForFeast } from "./feast-wikipedia.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380";
+import { wikipediaUrlForFeast } from "./feast-wikipedia.js?v=staging-b77cace0c8357079ceb4ae20fdddab29b7c2dcc5";
 import {
   adaptLegacyTimedOffice,
   officeDocumentToViewSections,
-} from "./office-document.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380";
-import { scripturePageBodyText } from "./scripture-reading.js?v=staging-da6bec082ba98852b73da7afb5a3a37052a32380";
+} from "./office-document.js?v=staging-b77cace0c8357079ceb4ae20fdddab29b7c2dcc5";
+import { scripturePageBodyText, scripturePageShowsCitation } from "./scripture-reading.js?v=staging-b77cace0c8357079ceb4ae20fdddab29b7c2dcc5";
 
 export function parseBundle(text) {
   const readings = new Map();
@@ -1174,26 +1174,23 @@ function readingContentHtml(view, key, className, psalmPresentation) {
     // Multi-chapter streams: page 1 uses the section label; later pages use the
     // active chapter title. Psalms omit a combined focus-cite so each Psalm is
     // named once via the body chapter heading (Psalm 8, then Psalm 148, …).
-    if (built.chapterHeadings) {
-      if (page > 0) {
-        const chapterTitle = built.pageHeadings?.[page] || citationText;
-        return `<span class="label">${escapeHtml(chapterTitle)}${pageIndex}</span>${body}`;
-      }
-      if (key === "PS") {
-        return `<span class="label">${sectionLabel}${pageIndex}</span>${body}`;
-      }
-      const citation = citationText
-        ? `<span class="focus-cite">${escapeHtml(citationText)}</span>`
-        : "";
-      return `<span class="label">${sectionLabel}${pageIndex}</span>${citation}${body}`;
-    }
-    if (page > 0) {
-      return `<span class="label">${escapeHtml(citationText)}${pageIndex}</span>${body}`;
-    }
-    const citation = citationText
+    // Other multi-chapter lessons keep the citation on page 1. Measurement
+    // must reserve that same citation or the last lines are clipped off.
+    const showCitation = scripturePageShowsCitation({
+      focus: key,
+      chapterHeadings: Boolean(built.chapterHeadings),
+      page,
+    });
+    const citation = showCitation && citationText
       ? `<span class="focus-cite">${escapeHtml(citationText)}</span>`
       : "";
-    return `<span class="label">${sectionLabel}${pageIndex}</span>${citation}${body}`;
+    let labelText = sectionLabel;
+    if (page > 0) {
+      labelText = built.chapterHeadings
+        ? (built.pageHeadings?.[page] || citationText)
+        : citationText;
+    }
+    return `<span class="label">${escapeHtml(labelText)}${pageIndex}</span>${citation}${body}`;
   }
 
   return `<span class="label">${READING_LABELS[key]}</span>${citationHtml(view, key, className)}`;
